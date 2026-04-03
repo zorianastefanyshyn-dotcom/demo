@@ -1,0 +1,484 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+--bg:#F4F6FB;--bg2:#fff;--bg3:#ECEEF5;--surface:#ECEEF5;--surface2:#E2E5EF;
+--border:#D4D8E8;--border2:#BCC3D8;
+--accent:#1A5CFF;--accent-bg:#EBF0FF;--accent-text:#0C3EBB;
+--green:#0D9E6A;--green-bg:#E6F7F1;--green-text:#075A3C;
+--red:#D63B3B;--red-bg:#FEECEC;--red-text:#7A1F1F;
+--warn:#B87500;--warn-bg:#FEF6E6;--warn-text:#6B4200;
+--purple:#6B3FCC;--purple-bg:#F0EBFF;--purple-text:#3D1F8A;
+--text:#1A1D2E;--text2:#5A6080;--text3:#8890AA;
+--mono:'Courier New',monospace;--r:8px;--r2:12px;
+}
+body{background:var(--bg);color:var(--text);font-size:13px;line-height:1.5;font-family:system-ui,-apple-system,sans-serif;overflow:hidden}
+
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:var(--bg2);border-bottom:1px solid var(--border);gap:8px;flex-wrap:wrap;position:relative;z-index:10}
+.logo{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.06em}
+.meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.pill-blue{background:var(--accent-bg);color:var(--accent-text);border:1px solid #B8CCFF}
+.pill-warn{background:var(--warn-bg);color:var(--warn-text);border:1px solid #F0D090}
+.pill-green{background:var(--green-bg);color:var(--green-text);border:1px solid #9FE0C8}
+.pill-gray{background:var(--surface2);color:var(--text2);border:1px solid var(--border)}
+.pill-red{background:var(--red-bg);color:var(--red-text);border:1px solid #F0B8B8}
+.pill-purple{background:var(--purple-bg);color:var(--purple-text);border:1px solid #C8B0F0}
+.duty-toggle{display:flex;align-items:center;gap:7px;padding:5px 10px;border-radius:20px;cursor:pointer;transition:.15s;border:1px solid var(--border);background:var(--bg)}
+.duty-toggle.on{background:var(--warn-bg);border-color:#E8C878}
+.toggle-sw{width:28px;height:16px;border-radius:8px;background:var(--border2);position:relative;transition:.2s;flex-shrink:0}
+.toggle-sw.on{background:var(--warn)}
+.toggle-knob{position:absolute;width:12px;height:12px;border-radius:50%;background:#fff;top:2px;left:2px;transition:.2s}
+.toggle-sw.on .toggle-knob{left:14px}
+
+.layout{display:grid;grid-template-columns:280px 1fr;height:calc(100vh - 44px);min-height:520px;position:relative}
+.sidebar{border-right:1px solid var(--border);display:flex;flex-direction:column;background:var(--bg);position:relative;z-index:1}
+.sidebar-head{padding:10px 12px;border-bottom:1px solid var(--border);background:var(--bg2);display:flex;flex-direction:column;gap:7px}
+.sidebar-body{flex:1;overflow-y:auto;padding:8px}
+.main{padding:14px;overflow-y:auto;position:relative}
+
+.stat-strip{display:flex;gap:6px;margin-bottom:10px}
+.sstat{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:8px 6px;text-align:center;cursor:pointer;transition:.15s;position:relative}
+.sstat:hover{border-color:var(--border2);background:var(--bg3)}
+.sstat.active-filter{border-width:2px}
+.sstat.active-filter.f-mine{border-color:var(--accent);background:var(--accent-bg)}
+.sstat.active-filter.f-unassigned{border-color:var(--warn);background:var(--warn-bg)}
+.sstat.active-filter.f-others{border-color:var(--border2);background:var(--surface)}
+.sstat.active-filter.f-done{border-color:var(--green);background:var(--green-bg)}
+.sstat-n{font-size:16px;font-weight:700}
+.sstat-l{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-top:1px}
+.new-badge{position:absolute;top:-5px;right:-5px;background:var(--red);color:#fff;border-radius:10px;font-size:9px;font-weight:700;padding:1px 5px;border:2px solid var(--bg2);font-family:var(--mono);white-space:nowrap;animation:popIn .3s cubic-bezier(.34,1.56,.64,1)}
+@keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+
+.filter-label{display:flex;align-items:center;justify-content:space-between;padding:6px 4px;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}
+.filter-clear{font-size:10px;color:var(--accent);cursor:pointer;font-weight:500;text-transform:none;letter-spacing:0}
+.filter-clear:hover{text-decoration:underline}
+
+.search-wrap{position:relative}
+.search-wrap input{padding-left:28px;font-size:12px;width:100%}
+.search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);pointer-events:none}
+input[type=text],textarea,select{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);color:var(--text);font-size:12px;padding:8px 10px;outline:none;transition:.15s;font-family:inherit}
+input[type=text]:focus,textarea:focus,select:focus{border-color:var(--accent);background:var(--bg2)}
+textarea{resize:none}
+select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238890AA' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+
+.group-label{font-size:9px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;padding:8px 4px 4px;display:flex;align-items:center;gap:6px}
+.group-label:after{content:'';flex:1;height:1px;background:var(--border)}
+.req-card{padding:10px 11px;background:var(--bg2);border-radius:var(--r);border:1px solid var(--border);margin-bottom:4px;cursor:pointer;transition:.15s;position:relative;overflow:hidden}
+.req-card:hover{border-color:var(--border2);background:var(--bg3)}
+.req-card.sel{border:2px solid var(--accent);background:var(--accent-bg)}
+.req-card .left-bar{position:absolute;left:0;top:0;bottom:0;width:3px}
+.lb-mine{background:var(--accent)}.lb-unassigned{background:var(--warn)}.lb-others{background:var(--border2)}.lb-done{background:var(--green)}.lb-urgent{background:var(--red)}
+.rc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px}
+.rc-id{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent)}
+.rc-time{font-size:10px;color:var(--text3);font-family:var(--mono)}
+.rc-client{font-size:12px;font-weight:500;color:var(--text);margin-bottom:2px}
+.rc-sub{font-size:10px;color:var(--text3)}
+.rc-badges{display:flex;gap:3px;margin-top:5px;flex-wrap:wrap}
+.unread-dot{position:absolute;top:9px;right:9px;width:7px;height:7px;border-radius:50%;background:var(--red);border:1.5px solid var(--bg2)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 14px;border-radius:var(--r);font-size:12px;font-weight:600;cursor:pointer;border:none;transition:.12s}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:#1450E0}
+.btn-success{background:var(--green);color:#fff}.btn-success:hover{background:#0A8059}
+.btn-ghost{background:var(--bg2);color:var(--text2);border:1px solid var(--border)}.btn-ghost:hover{background:var(--surface)}
+.btn-warn{background:var(--warn-bg);color:var(--warn-text);border:1px solid #E8C878}
+.icard{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:12px;margin-bottom:8px}
+.icard-title{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px}
+.field-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;display:flex;gap:5px;align-items:center}
+.freq{color:var(--red);font-size:9px}
+.irow{display:flex;justify-content:space-between;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--border)}
+.irow:last-child{border:none}
+.ilbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;padding-top:1px}
+.photos-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+.photo-t{aspect-ratio:1;border-radius:6px;overflow:hidden;background:var(--surface2);cursor:pointer;position:relative;transition:.12s}
+.photo-t:hover{outline:2px solid var(--accent)}
+.photo-t svg{width:100%;height:100%}
+.photo-expand{position:absolute;bottom:3px;right:3px;background:rgba(0,0,0,.4);border-radius:3px;padding:1px 4px;font-size:9px;color:#fff}
+.notif-inline{display:flex;align-items:flex-start;gap:9px;padding:9px 11px;border-radius:var(--r);margin-bottom:8px}
+.notif-red{background:var(--red-bg);border:1.5px solid #F0B8B8}
+.notif-purple{background:var(--purple-bg);border:1.5px solid #C8B0F0}
+.mgr-opt{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:var(--r);border:1px solid var(--border);background:var(--bg2);cursor:pointer;transition:.12s;margin-bottom:4px}
+.mgr-opt:hover{border-color:var(--accent);background:var(--accent-bg)}
+.mgr-opt.sel{border-color:var(--accent);background:var(--accent-bg)}
+.mgr-av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.tl-item{display:flex;gap:9px;padding:5px 0;position:relative}
+.tl-item:not(:last-child):before{content:'';position:absolute;left:10px;top:24px;bottom:0;width:1px;background:var(--border)}
+.tl-dot{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.chip-row{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
+.chip{padding:3px 7px;border-radius:4px;font-size:11px;background:var(--surface2);color:var(--text2);border:1px solid var(--border);cursor:pointer;transition:.1s}
+.chip:hover{background:var(--surface);border-color:var(--border2);color:var(--text)}
+.step-indicator{display:flex;align-items:center}
+.step-dot{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;border:2px solid var(--border2);color:var(--text3);background:var(--bg2);transition:.2s}
+.step-dot.done{background:var(--green);border-color:var(--green);color:#fff}
+.step-dot.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.step-line{flex:1;height:2px;background:var(--border)}
+.step-line.done{background:var(--green)}
+.step-lbl{font-size:9px;color:var(--text3);text-align:center;white-space:nowrap}
+.resolved-banner{display:none;align-items:center;gap:10px;padding:12px;border-radius:var(--r);background:var(--green-bg);border:2px solid var(--green);margin-top:8px}
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:420px;gap:8px;color:var(--text3)}
+
+/* POPUP */
+.popup-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.0);z-index:100;display:none}
+.popup-backdrop.show{display:block}
+.popup{position:fixed;z-index:200;background:var(--bg2);border-radius:var(--r2);border:1px solid var(--border);width:320px;box-shadow:0 8px 32px rgba(0,0,0,.14);animation:popupIn .2s cubic-bezier(.34,1.2,.64,1);overflow:hidden}
+@keyframes popupIn{from{opacity:0;transform:translateY(-8px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.popup-head{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.popup-title{font-size:12px;font-weight:600;color:var(--text)}
+.popup-close{background:none;border:none;cursor:pointer;color:var(--text3);font-size:18px;line-height:1;padding:0}
+.popup-body{padding:10px;max-height:300px;overflow-y:auto}
+.popup-req{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--r);border:1px solid var(--border);margin-bottom:5px;cursor:pointer;transition:.12s;background:var(--bg2)}
+.popup-req:hover{border-color:var(--accent);background:var(--accent-bg)}
+.popup-req-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.popup-req-id{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent)}
+.popup-req-client{font-size:12px;font-weight:500;color:var(--text)}
+.popup-req-meta{font-size:10px;color:var(--text3);margin-top:1px}
+.popup-req-new{width:7px;height:7px;border-radius:50%;background:var(--red);margin-left:auto;flex-shrink:0}
+
+/* TOAST POPUP */
+.toast-stack{position:fixed;bottom:16px;right:16px;z-index:300;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast-item{background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--r2);width:300px;box-shadow:0 4px 20px rgba(0,0,0,.12);pointer-events:all;animation:toastIn .35s cubic-bezier(.34,1.2,.64,1);overflow:hidden}
+.toast-item.urgent{border-color:#F0B8B8;border-left:4px solid var(--red)}
+.toast-item.normal{border-color:#B8CCFF;border-left:4px solid var(--accent)}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+.toast-inner{padding:10px 12px}
+.toast-top{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px}
+.toast-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.toast-title{font-size:12px;font-weight:600;line-height:1.3}
+.toast-sub{font-size:11px;opacity:.8;margin-top:1px;line-height:1.3}
+.toast-meta{font-size:10px;opacity:.55;font-family:var(--mono);margin-top:3px}
+.toast-actions{display:flex;gap:5px;margin-top:7px}
+.toast-btn{padding:4px 10px;border-radius:4px;font-size:11px;font-weight:500;cursor:pointer;border:none;transition:.1s}
+.toast-btn-primary{background:var(--accent);color:#fff}
+.toast-btn-primary:hover{background:#1450E0}
+.toast-btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--text2)}
+.toast-btn-ghost:hover{background:var(--surface)}
+.toast-progress{height:3px;background:var(--surface2)}
+.toast-progress-fill{height:100%;background:var(--accent);animation:toastProg 6s linear forwards}
+.toast-item.urgent .toast-progress-fill{background:var(--red)}
+@keyframes toastProg{from{width:100%}to{width:0%}}
+</style>
+
+<div class="topbar">
+  <span class="logo">CARGOS OS · E-COM</span>
+  <div class="meta">
+    <span class="pill pill-blue" id="user-pill">Шимко Олег · EMEA</span>
+    <div class="duty-toggle" id="duty-btn" onclick="toggleDuty()">
+      <div class="toggle-sw" id="duty-sw"><div class="toggle-knob"></div></div>
+      <span style="font-size:11px;font-weight:500;color:var(--text2)" id="duty-lbl">Я черговий</span>
+    </div>
+  </div>
+</div>
+
+<div class="layout">
+<div class="sidebar">
+  <div class="sidebar-head">
+    <div class="stat-strip" id="stat-strip">
+      <div class="sstat f-mine" id="st-mine" onclick="clickStat('mine')">
+        <div class="sstat-n" style="color:var(--accent)" id="cnt-mine">3</div>
+        <div class="sstat-l">Мої</div>
+        <div class="new-badge" id="new-mine">2</div>
+      </div>
+      <div class="sstat f-unassigned" id="st-unassigned" onclick="clickStat('unassigned')">
+        <div class="sstat-n" style="color:var(--warn)" id="cnt-unassigned">2</div>
+        <div class="sstat-l">Без менедж.</div>
+      </div>
+      <div class="sstat f-others" id="st-others" onclick="clickStat('others')">
+        <div class="sstat-n" style="color:var(--text3)" id="cnt-others">4</div>
+        <div class="sstat-l">Колег</div>
+      </div>
+      <div class="sstat f-done" id="st-done" onclick="clickStat('done')">
+        <div class="sstat-n" style="color:var(--green)" id="cnt-done">4</div>
+        <div class="sstat-l">Готово</div>
+      </div>
+    </div>
+    <div class="search-wrap">
+      <svg class="search-icon" width="13" height="13" fill="none" stroke="var(--text3)" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" placeholder="Пошук за ID, клієнтом, сектором..." oninput="doSearch(this.value)" id="search-input">
+    </div>
+    <div id="filter-active" style="display:none">
+      <div class="filter-label">
+        <span id="filter-label-text"></span>
+        <span class="filter-clear" onclick="clearFilter()">✕ Скинути</span>
+      </div>
+    </div>
+  </div>
+  <div class="sidebar-body" id="req-list"></div>
+</div>
+
+<div class="main">
+  <div class="empty-state" id="empty-st">
+    <svg width="36" height="36" fill="none" stroke="var(--border2)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 9h6M9 13h4"/></svg>
+    <div style="font-size:13px;font-weight:500;color:var(--text2)">Оберіть запит зі списку</div>
+    <div style="font-size:11px;color:var(--text3);text-align:center;max-width:180px">Клікніть на цифри зверху щоб фільтрувати список</div>
+  </div>
+  <div id="detail" style="display:none"></div>
+</div>
+</div>
+
+<!-- POPUP for stat click -->
+<div class="popup-backdrop" id="popup-backdrop" onclick="closePopup()"></div>
+<div class="popup" id="stat-popup" style="display:none">
+  <div class="popup-head">
+    <span class="popup-title" id="popup-title"></span>
+    <button class="popup-close" onclick="closePopup()">✕</button>
+  </div>
+  <div class="popup-body" id="popup-body"></div>
+</div>
+
+<!-- TOAST STACK -->
+<div class="toast-stack" id="toast-stack"></div>
+
+<script>
+var isDuty=false,curId=null,transferMgr=null,searchVal='',activeFilter=null;
+
+var reqs=[
+  {id:'4960',client:'Liki24',carrier:'DHL',sector:'А-2',time:'16:01',group:'mine',status:'new',urgent:true,comment:'логотип Liki24, ціла упаковка',ai:null,region:'EMEA',isNew:true},
+  {id:'4872',client:'Liki24',carrier:'DHL',sector:'Б-2',time:'14:31',group:'mine',status:'inwork',urgent:false,comment:'брендований скотч, без лейби',ai:'Liki24 · 78%',region:'EMEA',isNew:true},
+  {id:'4901',client:'ASOS',carrier:null,sector:'В-1',time:'15:04',group:'mine',status:'inwork',urgent:false,comment:'пошкоджена упаковка',ai:null,region:'EMEA',isNew:false},
+  {id:'4915',client:null,carrier:'Yanwen',sector:'А-4',time:'15:22',group:'unassigned',status:'new',urgent:false,comment:'клієнт не визначений',ai:'Yanwen · 83%',region:'APAC',isNew:false},
+  {id:'4930',client:null,carrier:null,sector:'Б-3',time:'15:47',group:'unassigned',status:'new',urgent:true,comment:'крихкий, без ознак',ai:null,region:null,isNew:false},
+  {id:'4820',client:'H&M',carrier:'DHL',sector:'В-3',time:'11:30',group:'others',status:'inwork',urgent:false,comment:'',ai:null,region:'EMEA',mgr:'Валицька Катерина',isNew:false},
+  {id:'4835',client:'Temu',carrier:'Cainiao',sector:'А-3',time:'12:00',group:'others',status:'inwork',urgent:false,comment:'',ai:null,region:'APAC',mgr:'Остапенко Оксана',isNew:false},
+  {id:'4848',client:'iHerb',carrier:'Velox',sector:'В-5',time:'12:40',group:'others',status:'inwork',urgent:false,comment:'',ai:null,region:'NALA',mgr:'Сливка Вікторія',isNew:false},
+  {id:'4855',client:'JOOM',carrier:null,sector:'Б-5',time:'13:10',group:'others',status:'inwork',urgent:false,comment:'',ai:null,region:'APAC',mgr:'Черниш Аліна',isNew:false},
+  {id:'4811',client:'Trendyol',carrier:'DHL',sector:'В-4',time:'12:10',group:'done',status:'done',urgent:false,comment:'',ai:null,region:'EMEA',isNew:false},
+  {id:'4823',client:'Notino',carrier:null,sector:'А-1',time:'12:45',group:'done',status:'done',urgent:false,comment:'',ai:null,region:'EMEA',isNew:false},
+  {id:'4840',client:'Liki24',carrier:'DHL',sector:'Б-1',time:'13:22',group:'done',status:'done',urgent:false,comment:'',ai:null,region:'EMEA',isNew:false},
+  {id:'4858',client:'GymBeam',carrier:null,sector:'В-2',time:'14:05',group:'done',status:'done',urgent:false,comment:'',ai:null,region:'EMEA',isNew:false},
+];
+
+var managers=[
+  {name:'Валицька Катерина',init:'ВК',col:'#1A5CFF',region:'EMEA',load:2},
+  {name:'Бондарчук Ірина',init:'БІ',col:'#6B3FCC',region:'EMEA',load:1},
+  {name:'Калашник Ольга',init:'КО',col:'#0D9E6A',region:'EMEA',load:3},
+  {name:'Молодецька Марина',init:'ММ',col:'#D63B3B',region:'EMEA',load:0},
+  {name:'Черниш Аліна',init:'ЧА',col:'#6B3FCC',region:'APAC',load:2},
+  {name:'Булах-Березовська К.',init:'БК',col:'#FF6A00',region:'APAC',load:1},
+  {name:'Браіловська Катерина',init:'БКа',col:'#0055AA',region:'APAC',load:2},
+  {name:'Сливка Вікторія',init:'СВ',col:'#0891B2',region:'NALA',load:1},
+];
+
+var toastQueue=[
+  {id:'t1',type:'urgent',client:'Liki24',reqId:'4960',sector:'А-2',carrier:'DHL',time:'16:01',shown:false},
+  {id:'t2',type:'normal',client:'Liki24',reqId:'4872',sector:'Б-2',carrier:'DHL',time:'14:31',shown:false},
+];
+
+function showToasts(){
+  toastQueue.forEach(function(t,i){
+    if(t.shown) return;
+    t.shown=true;
+    setTimeout(function(){addToast(t);},i*800);
+  });
+}
+
+function addToast(t){
+  var stack=document.getElementById('toast-stack');
+  var el=document.createElement('div');
+  el.className='toast-item '+(t.type==='urgent'?'urgent':'normal');
+  el.id='toast-'+t.id;
+  var iconHtml=t.type==='urgent'
+    ?'<div class="toast-icon" style="background:var(--red-bg)"><svg width="13" height="13" fill="var(--red)" viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm0 3.5L20.5 20h-17L12 5.5zM11 10v4h2v-4h-2zm0 6v2h2v-2h-2z"/></svg></div>'
+    :'<div class="toast-icon" style="background:var(--accent-bg)"><svg width="13" height="13" fill="none" stroke="var(--accent)" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg></div>';
+  var titleColor=t.type==='urgent'?'var(--red-text)':'var(--accent-text)';
+  el.innerHTML=
+    '<div class="toast-inner">'+
+      '<div class="toast-top">'+
+        iconHtml+
+        '<div style="flex:1">'+
+          '<div class="toast-title" style="color:'+titleColor+'">'+(t.type==='urgent'?'Терміново — ':'Новий незареєстрований вантаж'+(t.client?' · '+t.client:''))+'</div>'+
+          (t.type==='urgent'?'<div class="toast-sub" style="color:'+titleColor+'">Сектор '+t.sector+' · '+(t.client||'Клієнт не визначений')+(t.carrier?' · '+t.carrier:'')+' · ризик затримки рейсу</div>':'<div class="toast-sub" style="color:'+titleColor+'">Сектор '+t.sector+(t.carrier?' · '+t.carrier:'')+' · чекає обробки</div>')+
+          '<div class="toast-meta" style="color:'+titleColor+'">'+t.time+' · Петренко О.</div>'+
+        '</div>'+
+        '<button onclick="removeToast(\''+t.id+'\')" style="background:none;border:none;cursor:pointer;color:'+titleColor+';opacity:.45;font-size:16px;line-height:1;padding:0;margin-left:4px;flex-shrink:0">✕</button>'+
+      '</div>'+
+      '<div class="toast-actions">'+
+        '<button class="toast-btn toast-btn-primary" onclick="openFromToast(\''+t.reqId+'\',\''+t.id+'\')">Відкрити запит</button>'+
+        '<button class="toast-btn toast-btn-ghost" onclick="removeToast(\''+t.id+'\')">Пізніше</button>'+
+      '</div>'+
+    '</div>'+
+    '<div class="toast-progress"><div class="toast-progress-fill"></div></div>';
+  stack.appendChild(el);
+  setTimeout(function(){removeToast(t.id);},7000);
+}
+
+function removeToast(id){
+  var el=document.getElementById('toast-'+id);
+  if(el){el.style.opacity='0';el.style.transform='translateX(20px)';el.style.transition='all .25s ease';setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},250);}
+}
+
+function openFromToast(reqId,toastId){
+  removeToast(toastId);
+  selectReq(reqId);
+}
+
+function clickStat(group){
+  var st=document.getElementById('st-'+group);
+  var rect=st.getBoundingClientRect();
+  if(activeFilter===group){clearFilter();return;}
+  activeFilter=group;
+  document.querySelectorAll('.sstat').forEach(function(s){s.classList.remove('active-filter')});
+  st.classList.add('active-filter');
+  var labels={'mine':'Мої запити','unassigned':'Без менеджера','others':'Запити колег','done':'Завершено'};
+  document.getElementById('filter-label-text').textContent='Фільтр: '+labels[group];
+  document.getElementById('filter-active').style.display='block';
+  renderList(searchVal);
+  showPopup(group,rect);
+}
+
+function clearFilter(){
+  activeFilter=null;
+  document.querySelectorAll('.sstat').forEach(function(s){s.classList.remove('active-filter')});
+  document.getElementById('filter-active').style.display='none';
+  renderList(searchVal);
+  closePopup();
+}
+
+function showPopup(group,rect){
+  var popup=document.getElementById('stat-popup');
+  var backdrop=document.getElementById('popup-backdrop');
+  var labels={'mine':'Мої запити','unassigned':'Без менеджера','others':'Запити колег','done':'Завершено'};
+  var colors={'mine':'var(--accent)','unassigned':'var(--warn)','others':'var(--text3)','done':'var(--green)'};
+  document.getElementById('popup-title').textContent=labels[group];
+  var body=document.getElementById('popup-body');
+  body.innerHTML='';
+  var items=reqs.filter(function(r){return r.group===group;});
+  if(!items.length){body.innerHTML='<div style="font-size:11px;color:var(--text3);padding:8px 4px">Немає запитів у цій групі</div>';return;}
+  items.forEach(function(r){
+    var el=document.createElement('div');
+    el.className='popup-req';
+    el.onclick=function(){closePopup();selectReq(r.id);};
+    var dotColor=r.urgent?'var(--red)':colors[group];
+    var sp=r.status==='new'?'<span class="pill pill-blue" style="font-size:9px;padding:1px 5px">Новий</span>':r.status==='inwork'?'<span class="pill pill-warn" style="font-size:9px;padding:1px 5px">В роботі</span>':'<span class="pill pill-green" style="font-size:9px;padding:1px 5px">Готово</span>';
+    el.innerHTML=
+      '<div class="popup-req-dot" style="background:'+dotColor+'"></div>'+
+      '<div style="flex:1;min-width:0">'+
+        '<div class="popup-req-id">#TMP-4'+r.id+'</div>'+
+        '<div class="popup-req-client">'+(r.client||'<span style="color:var(--text3);font-style:italic">Клієнт не визначений</span>')+'</div>'+
+        '<div class="popup-req-meta">Сектор '+r.sector+(r.carrier?' · '+r.carrier:'')+(r.mgr?' · '+r.mgr:'')+'</div>'+
+      '</div>'+
+      '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">'+sp+(r.isNew?'<div class="popup-req-new"></div>':'')+'</div>';
+    body.appendChild(el);
+  });
+  popup.style.display='block';
+  backdrop.classList.add('show');
+  var popupW=320,margin=8;
+  var left=rect.left;
+  var maxLeft=window.innerWidth-popupW-margin;
+  left=Math.min(left,maxLeft);
+  left=Math.max(left,margin);
+  popup.style.left=left+'px';
+  popup.style.top=(rect.bottom+6)+'px';
+}
+
+function closePopup(){
+  document.getElementById('stat-popup').style.display='none';
+  document.getElementById('popup-backdrop').classList.remove('show');
+}
+
+function updateNewBadges(){
+  var groups=['mine','unassigned','others','done'];
+  groups.forEach(function(g){
+    var newCount=reqs.filter(function(r){return r.group===g&&r.isNew;}).length;
+    var badge=document.getElementById('new-'+g);
+    if(badge){
+      if(newCount>0){badge.textContent=newCount;badge.style.display='block';}
+      else{badge.style.display='none';}
+    }
+  });
+}
+
+function renderList(search){
+  var list=document.getElementById('req-list');
+  list.innerHTML='';
+  var groups=isDuty?['mine','unassigned','others','done']:['mine','unassigned','done'];
+  var labels={'mine':'Мої запити','unassigned':'Без менеджера','others':'Запити колег','done':'Завершено'};
+  var colors={'mine':'var(--accent)','unassigned':'var(--warn)','others':'var(--border2)','done':'var(--green)'};
+  groups.forEach(function(g){
+    if(activeFilter&&activeFilter!==g) return;
+    var items=reqs.filter(function(r){
+      if(r.group!==g) return false;
+      if(!search) return true;
+      var s=search.toLowerCase();
+      return r.id.includes(s)||(r.client&&r.client.toLowerCase().includes(s))||r.sector.toLowerCase().includes(s)||(r.carrier&&r.carrier.toLowerCase().includes(s));
+    });
+    if(!items.length) return;
+    if(!activeFilter){
+      var gl=document.createElement('div');
+      gl.className='group-label';
+      gl.innerHTML=labels[g]+' <span style="font-family:var(--mono);font-weight:700;color:'+colors[g]+'">'+items.length+'</span>';
+      list.appendChild(gl);
+    }
+    items.forEach(function(r){
+      var el=document.createElement('div');
+      el.className='req-card'+(r.id===curId?' sel':'');
+      el.onclick=function(){selectReq(r.id);};
+      var lbCls=r.urgent?'lb-urgent':r.group==='mine'?'lb-mine':r.group==='unassigned'?'lb-unassigned':r.group==='done'?'lb-done':'lb-others';
+      var sp=r.status==='new'?'<span class="pill pill-blue" style="font-size:9px;padding:2px 5px">Новий</span>':r.status==='inwork'?'<span class="pill pill-warn" style="font-size:9px;padding:2px 5px">В роботі</span>':'<span class="pill pill-green" style="font-size:9px;padding:2px 5px">Готово</span>';
+      var urg=r.urgent?'<span class="pill pill-red" style="font-size:9px;padding:2px 5px">Терміново</span>':'';
+      var aiLine=r.ai?'<div style="font-size:10px;color:var(--purple-text);margin-top:2px">✦ АІ: '+r.ai+'</div>':'';
+      var mgrLine=r.mgr?'<div style="font-size:10px;color:var(--text3);margin-top:1px">'+r.mgr+'</div>':'';
+      el.innerHTML='<div class="left-bar '+lbCls+'"></div>'+
+        '<div style="padding-left:6px">'+
+          '<div class="rc-head"><span class="rc-id">#TMP-4'+r.id+'</span><span class="rc-time">'+r.time+'</span></div>'+
+          '<div class="rc-client">'+(r.client||'<span style="color:var(--text3);font-style:italic">Клієнт не визначений</span>')+'</div>'+
+          '<div class="rc-sub">Сектор '+r.sector+(r.carrier?' · '+r.carrier:'')+'</div>'+
+          mgrLine+aiLine+
+          '<div class="rc-badges">'+sp+urg+'</div>'+
+        '</div>'+
+        (r.isNew?'<div class="unread-dot"></div>':'');
+      list.appendChild(el);
+    });
+  });
+  updateCounts();
+  updateNewBadges();
+}
+
+function updateCounts(){
+  document.getElementById('cnt-mine').textContent=reqs.filter(function(r){return r.group==='mine'}).length;
+  document.getElementById('cnt-unassigned').textContent=reqs.filter(function(r){return r.group==='unassigned'}).length;
+  document.getElementById('cnt-others').textContent=reqs.filter(function(r){return r.group==='others'}).length;
+  document.getElementById('cnt-done').textContent=reqs.filter(function(r){return r.group==='done'}).length;
+}
+
+function doSearch(v){searchVal=v;renderList(v);}
+
+function selectReq(id){
+  curId=id;transferMgr=null;
+  var r=reqs.find(function(x){return x.id===id});
+  if(!r) return;
+  r.isNew=false;
+  renderList(searchVal);
+  document.getElementById('empty-st').style.display='none';
+  document.getElementById('detail').style.display='block';
+  if(r.status==='new'&&r.group==='mine'){r.status='inwork';renderList(searchVal);}
+  buildDetail(r);
+}
+
+function buildDetail(r){
+  var isUnassigned=r.group==='unassigned',isDone=r.group==='done',isOthers=r.group==='others',canEdit=!isDone&&!isOthers;
+  var notifs='';
+  if(r.urgent) notifs+='<div class="notif-inline notif-red"><div style="width:26px;height:26px;border-radius:50%;background:var(--red-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="13" height="13" fill="var(--red)" viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm0 3.5L20.5 20h-17L12 5.5zM11 10v4h2v-4h-2zm0 6v2h2v-2h-2z"/></svg></div><div><div style="font-size:12px;font-weight:600;color:var(--red-text)">Терміново — ризик затримки рейсу</div><div style="font-size:11px;color:var(--red-text);opacity:.85">Необхідно обробити до 18:00</div></div></div>';
+  if(r.ai&&isUnassigned) notifs+='<div class="notif-inline notif-purple"><div style="width:26px;height:26px;border-radius:50%;background:var(--purple-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="13" height="13" fill="none" stroke="var(--purple)" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg></div><div><div style="font-size:12px;font-weight:600;color:var(--purple-text)">АІ-підказка: '+r.ai+'</div><div style="font-size:11px;color:var(--purple-text);opacity:.8">Визначено за підрядником. Підтвердьте або оберіть інший.</div></div></div>';
+  var s1=!!r.client,s2=r.id==='4901',s3=isDone;
+  var sd=function(n){var done=n===1?s1:n===2?s2:s3;var active=n===1?!s1:n===2?s1&&!s2:s1&&s2&&!s3;return'<div class="step-dot '+(done?'done':active?'active':'')+'">'+( done?'<svg width="10" height="10" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>':n)+'</div>';};
+  var sl=function(d){return'<div class="step-line '+(d?'done':'')+'"></div>';};
+  var stepBar=canEdit?'<div style="margin-bottom:12px"><div class="step-indicator">'+sd(1)+sl(s1)+sd(2)+sl(s2)+sd(3)+'</div><div style="display:flex;justify-content:space-between;margin-top:4px"><span class="step-lbl" style="'+(s1?'color:var(--green-text)':'')+'">Визначити клієнта</span><span class="step-lbl" style="'+(s2?'color:var(--green-text)':s1?'color:var(--accent-text)':'')+'">Зареєструвати вантаж</span><span class="step-lbl" style="'+(s3?'color:var(--green-text)':'')+'">Завершити</span></div></div>':'';
+  var cOpts=['Liki24','ASOS','Notino','Trendyol','H&M','GymBeam','DPD','Starlink'].map(function(c){return'<option'+(r.client===c?' selected':'')+'>'+c+'</option>';}).join('');
+  var formHtml=canEdit?'<div class="icard"><div class="icard-title">Ідентифікація та реєстрація</div><div style="display:flex;flex-direction:column;gap:8px"><div><div class="field-label">Клієнт E-com <span class="freq">*</span></div><select id="f-client" onchange="setClient(\''+r.id+'\',this.value)"><option value="">— Оберіть клієнта —</option><optgroup label="EMEA">'+cOpts+'</optgroup><optgroup label="APAC"><option>Temu</option><option>Cainiao</option><option>Yanwen</option></optgroup><optgroup label="NALA"><option>iHerb</option><option>Velox</option></optgroup></select></div><div><div class="field-label">Зареєструвати вантаж — лейба / трек-номер <span class="freq">*</span></div><input type="text" id="f-label" placeholder="UA420066100900 або трек-номер перевізника" value="'+(r.id==='4901'?'UA420066100900':'')+'"><div style="font-size:10px;color:var(--text3);margin-top:4px">Цей номер отримає склад для повторного сканування та прийому</div></div><div><div class="field-label">Інструкція для складу</div><textarea rows="2" id="f-comment" placeholder="Що зробити зі стікером...">'+(r.id==='4901'?'Наклейте лейбу UA420066100900 на лицьову сторону':'')+'</textarea><div class="chip-row"><div class="chip" onclick="addChip(\'Лейбу надруковано\')">+ Лейбу надруковано</div><div class="chip" onclick="addChip(\'Очікує сканування\')">+ Очікує сканування</div><div class="chip" onclick="addChip(\'Уточнити у відправника\')">+ Уточнити у відправника</div></div></div></div></div><div class="icard"><div class="icard-title">Передати колезі</div><div style="font-size:11px;color:var(--text3);margin-bottom:8px">Якщо це не ваш клієнт — оберіть менеджера</div><div>'+managers.map(function(m,i){return'<div class="mgr-opt" id="mo-'+i+'" onclick="pickMgr('+i+',this)"><div class="mgr-av" style="background:'+m.col+'22;color:'+m.col+'">'+m.init+'</div><div style="flex:1"><div style="font-size:12px;font-weight:500;color:var(--text)">'+m.name+'</div><div style="font-size:10px;color:var(--text3)">'+m.region+'</div></div>'+(m.load===0?'<span class="pill pill-green" style="font-size:9px">Вільний</span>':'<span style="font-size:10px;color:var(--text3)">'+m.load+' відкр.</span>')+'</div>';}).join('')+'</div><button class="btn btn-warn" style="margin-top:8px;width:100%" onclick="doTransfer(\''+r.id+'\')"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>Передати обраному менеджеру</button></div><div style="display:flex;gap:8px;margin-bottom:8px">'+(isUnassigned?'<button class="btn btn-primary" style="flex:1" onclick="takeReq(\''+r.id+'\')"><svg width="13" height="13" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>Взяти в роботу</button>':'')+((!isUnassigned)?'<button class="btn btn-success" style="flex:1" onclick="completeReq(\''+r.id+'\')"><svg width="13" height="13" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Зареєструвати та завершити</button>':'')+'</div>':'';
+  var resolvedHtml='<div class="resolved-banner" id="res-banner" style="'+(isDone?'display:flex':'display:none')+'"><div style="width:32px;height:32px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div><div><div style="font-size:13px;font-weight:600;color:var(--green-text)">Вантаж зареєстровано та завершено</div><div style="font-size:11px;color:var(--green-text);opacity:.8;margin-top:1px">Склад НПЄ отримав сповіщення</div></div></div>';
+  var tl='<div class="icard"><div class="icard-title">Хронологія</div><div class="tl-item"><div class="tl-dot" style="background:var(--surface2)"><svg fill="none" stroke="var(--text3)" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/></svg></div><div><div style="font-size:11px;font-weight:500;color:var(--text)">Запит створено складом</div><div style="font-size:10px;color:var(--text3)">'+r.time+' · Петренко О. · Сектор '+r.sector+'</div></div></div>'+(r.group!=='unassigned'?'<div class="tl-item"><div class="tl-dot" style="background:var(--accent-bg)"><svg fill="none" stroke="var(--accent)" stroke-width="2" viewBox="0 0 24 24"><path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/></svg></div><div><div style="font-size:11px;font-weight:500;color:var(--text)">Призначено автоматично</div><div style="font-size:10px;color:var(--text3)">'+(r.mgr||'Шимко Олег')+'</div></div></div>':'')+(r.status==='inwork'||r.status==='done'?'<div class="tl-item"><div class="tl-dot" style="background:var(--warn-bg)"><svg fill="none" stroke="var(--warn)" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v10M5 9l7-7 7 7"/></svg></div><div><div style="font-size:11px;font-weight:500;color:var(--text)">Взято в роботу</div><div style="font-size:10px;color:var(--text3)">Шимко Олег</div></div></div>':'')+(isDone?'<div class="tl-item"><div class="tl-dot" style="background:var(--green-bg)"><svg fill="none" stroke="var(--green)" stroke-width="2" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div><div><div style="font-size:11px;font-weight:500;color:var(--text)">Вантаж зареєстровано</div><div style="font-size:10px;color:var(--text3)">Лейбу передано на склад</div></div></div>':'')+' </div>';
+  document.getElementById('detail').innerHTML=notifs+'<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px"><div><div style="font-size:10px;color:var(--text3)">Запит на реєстрацію вантажу</div><div style="font-family:var(--mono);font-size:15px;font-weight:700;color:var(--accent)">#TMP-20240331-'+r.id+'</div></div><div style="display:flex;gap:5px;flex-wrap:wrap">'+(r.client?'<span class="pill pill-blue">'+r.client+'</span>':'<span class="pill pill-gray">Клієнт не визначений</span>')+(r.urgent?'<span class="pill pill-red">Терміново</span>':'')+(isUnassigned?'<span class="pill pill-warn">Без менеджера</span>':isDone?'<span class="pill pill-green">Завершено</span>':isOthers?'<span class="pill pill-gray">'+(r.mgr||'')+'</span>':'<span class="pill pill-warn">В роботі</span>')+'</div></div>'+stepBar+'<div class="icard"><div class="icard-title">Фото вантажу зі складу</div><div class="photos-grid"><div class="photo-t"><svg viewBox="0 0 60 60"><rect width="60" height="60" fill="#EEF0F6"/><rect x="10" y="18" width="40" height="25" rx="2" fill="#D8DCE8"/><rect x="14" y="22" width="20" height="4" rx="1" fill="#8890AA"/></svg><div class="photo-expand">↗</div></div><div class="photo-t"><svg viewBox="0 0 60 60"><rect width="60" height="60" fill="#EEF0F6"/><rect x="8" y="12" width="44" height="36" rx="3" fill="#D8DCE8"/><line x1="12" y1="30" x2="48" y2="30" stroke="#C2C8D8"/><line x1="30" y1="16" x2="30" y2="44" stroke="#C2C8D8"/></svg><div class="photo-expand">↗</div></div><div class="photo-t"><svg viewBox="0 0 60 60"><rect width="60" height="60" fill="#EEF0F6"/><rect x="8" y="12" width="44" height="36" rx="3" fill="#D8DCE8"/><rect x="18" y="20" width="24" height="20" rx="2" fill="#EEF0F6" stroke="#C2C8D8"/></svg><div class="photo-expand">↗</div></div><div class="photo-t"><svg viewBox="0 0 60 60"><rect width="60" height="60" fill="#EEF0F6"/><rect x="8" y="12" width="44" height="36" rx="3" fill="#D8DCE8"/><path d="M15 38L22 26L29 32L36 22L45 38Z" fill="#FEF0E6" stroke="#E8650A" stroke-width="1.5" stroke-linejoin="round"/></svg><div class="photo-expand">↗</div></div></div><div style="margin-top:8px"><div class="irow"><span class="ilbl">Підрядник</span><span style="font-family:var(--mono);font-size:11px;font-weight:600;color:var(--text)">'+(r.carrier||'—')+'</span></div><div class="irow"><span class="ilbl">Сектор</span><span style="font-family:var(--mono);font-size:11px;font-weight:600;color:var(--text)">'+r.sector+'</span></div>'+(r.comment?'<div class="irow" style="border:none"><span class="ilbl">Коментар складу</span><span style="font-size:11px;color:var(--text2);text-align:right;max-width:60%">'+r.comment+'</span></div>':'')+'</div></div>'+formHtml+resolvedHtml+tl;
+}
+
+function setClient(id,val){var r=reqs.find(function(x){return x.id===id});if(r)r.client=val||null;}
+function addChip(text){var ta=document.getElementById('f-comment');if(ta)ta.value=ta.value?ta.value+'. '+text:text;}
+function pickMgr(i,el){transferMgr=i;document.querySelectorAll('.mgr-opt').forEach(function(o){o.classList.remove('sel')});el.classList.add('sel');}
+function takeReq(id){var r=reqs.find(function(x){return x.id===id});if(r){r.group='mine';r.status='inwork';renderList(searchVal);selectReq(id);}}
+function doTransfer(id){if(transferMgr===null)return;var r=reqs.find(function(x){return x.id===id});var m=managers[transferMgr];if(r&&m){r.group='others';r.mgr=m.name;r.status='inwork';managers[transferMgr].load++;transferMgr=null;curId=null;renderList(searchVal);document.getElementById('empty-st').style.display='flex';document.getElementById('detail').style.display='none';}}
+function completeReq(id){var r=reqs.find(function(x){return x.id===id});if(r){r.group='done';r.status='done';r.isNew=false;renderList(searchVal);buildDetail(r);var b=document.getElementById('res-banner');if(b)b.style.display='flex';}}
+function toggleDuty(){isDuty=!isDuty;var sw=document.getElementById('duty-sw');var btn=document.getElementById('duty-btn');var lbl=document.getElementById('duty-lbl');var pill=document.getElementById('user-pill');sw.classList.toggle('on',isDuty);btn.classList.toggle('on',isDuty);lbl.textContent=isDuty?'● Черговий':'Я черговий';pill.textContent=isDuty?'Шимко Олег · Черговий':'Шимко Олег · EMEA';pill.className=isDuty?'pill pill-warn':'pill pill-blue';renderList(searchVal);}
+
+renderList('');
+setTimeout(showToasts,800);
+</script>
