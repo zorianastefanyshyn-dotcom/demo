@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cargos OS · E-com менеджер</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+:root{
+  --bg:#F4F6FB;--bg2:#fff;--bg3:#ECEEF5;
+  --surface:#ECEEF5;--surface2:#E2E5EF;
+  --border:#DDE1EE;--border2:#C8CEDF;
+  --accent:#1A5CFF;--accent-bg:#EBF0FF;--accent-text:#0C3EBB;
+  --green:#0D9E6A;--green-bg:#E6F7F1;--green-text:#075A3C;
+  --red:#D63B3B;--red-bg:#FEECEC;--red-text:#7A1F1F;
+  --warn:#B87500;--warn-bg:#FEF6E6;--warn-text:#6B4200;
+  --purple:#6B3FCC;--purple-bg:#F0EBFF;--purple-text:#3D1F8A;
+  --slack:#4A154B;--slack-bg:#F8F0FF;
+  --text:#1A1D2E;--text2:#5A6080;--text3:#8890AA;
+  --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;
+  --r:8px;--r2:12px;--r3:18px;
+  --shadow:0 1px 3px rgba(0,0,0,.06);
+  --shadow-md:0 4px 16px rgba(0,0,0,.09);
+  --shadow-lg:0 8px 32px rgba(0,0,0,.12);
+}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;line-height:1.5;display:flex;flex-direction:column}
+
+/* ── TOPBAR ── */
+.topbar{height:50px;min-height:50px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0;gap:12px}
+.logo{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.08em;white-space:nowrap}
+.topbar-center{flex:1;display:flex;align-items:center;justify-content:center;gap:6px}
+.topbar-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.tb-user{display:flex;align-items:center;gap:8px}
+.tb-name{font-size:12px;color:var(--text2)}
+.tb-av{width:30px;height:30px;border-radius:50%;background:var(--accent-bg);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;font-weight:700;color:var(--accent);border:2px solid var(--accent-bg)}
+.notif-btn{width:32px;height:32px;border-radius:var(--r);background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;color:var(--text2);transition:.12s}
+.notif-btn:hover{background:var(--surface);color:var(--text)}
+.notif-dot{position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--red);border:1.5px solid var(--bg2)}
+
+/* ── PILL / BADGE ── */
+.pill{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
+.pill-blue{background:var(--accent-bg);color:var(--accent-text);border:1px solid #B8CCFF}
+.pill-green{background:var(--green-bg);color:var(--green-text);border:1px solid #9FE0C8}
+.pill-red{background:var(--red-bg);color:var(--red-text);border:1px solid #F0B8B8}
+.pill-warn{background:var(--warn-bg);color:var(--warn-text);border:1px solid #F0D090}
+.pill-gray{background:var(--surface2);color:var(--text2);border:1px solid var(--border2)}
+.pill-purple{background:var(--purple-bg);color:var(--purple-text);border:1px solid #C8B0F0}
+
+/* ── LAYOUT ── */
+.layout{display:grid;grid-template-columns:300px 1fr;flex:1;min-height:0;overflow:hidden}
+.sidebar{border-right:1px solid var(--border);display:flex;flex-direction:column;background:var(--bg);overflow:hidden}
+.main{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+
+/* ── SIDEBAR ── */
+.sb-head{padding:12px 14px;border-bottom:1px solid var(--border);background:var(--bg2);flex-shrink:0}
+.sb-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
+.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:5px;margin-bottom:10px}
+.stat-box{background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:8px 10px;cursor:pointer;transition:.12s;user-select:none}
+.stat-box:hover{border-color:var(--border2);background:var(--surface)}
+.stat-box.active{border-width:2px}
+.stat-box.active.sb-new{border-color:var(--red);background:var(--red-bg)}
+.stat-box.active.sb-inwork{border-color:var(--warn);background:var(--warn-bg)}
+.stat-box.active.sb-done{border-color:var(--green);background:var(--green-bg)}
+.stat-box.active.sb-all{border-color:var(--accent);background:var(--accent-bg)}
+.stat-n{font-family:var(--mono);font-size:18px;font-weight:700;line-height:1}
+.stat-l{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+.sb-search{position:relative}
+.sb-search input{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:8px 10px 8px 32px;font-size:12px;color:var(--text);outline:none;transition:.15s;font-family:var(--sans)}
+.sb-search input:focus{border-color:var(--accent);background:var(--bg2)}
+.sb-search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none}
+
+.sb-body{flex:1;overflow-y:auto;padding:8px}
+.group-lbl{font-size:9px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;padding:8px 4px 5px;display:flex;align-items:center;gap:6px}
+.group-lbl:after{content:'';flex:1;height:1px;background:var(--border)}
+
+.req-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:10px 11px;margin-bottom:5px;cursor:pointer;transition:.12s;position:relative;overflow:hidden}
+.req-card:hover{border-color:var(--border2);background:var(--bg3)}
+.req-card.sel{border:2px solid var(--accent);background:var(--accent-bg)}
+.req-card.urgent{border-left:3px solid var(--red)}
+.rc-bar{position:absolute;left:0;top:0;bottom:0;width:3px}
+.rcb-new{background:var(--red)}.rcb-inwork{background:var(--warn)}.rcb-done{background:var(--green)}.rcb-notified{background:var(--purple)}
+.rc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px}
+.rc-id{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent)}
+.rc-time{font-size:10px;color:var(--text3);font-family:var(--mono)}
+.rc-client{font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px}
+.rc-sub{font-size:10px;color:var(--text3);margin-bottom:5px}
+.rc-badges{display:flex;gap:3px;flex-wrap:wrap}
+.unread-dot{position:absolute;top:10px;right:10px;width:7px;height:7px;border-radius:50%;background:var(--red);border:1.5px solid var(--bg2)}
+.ai-hint{font-size:10px;color:var(--purple-text);margin-top:3px;display:flex;align-items:center;gap:3px}
+
+/* ── MAIN DETAIL ── */
+.main-head{padding:14px 20px 0;flex-shrink:0}
+.detail-topbar{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;gap:10px}
+.detail-id{font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:3px}
+.detail-title{font-size:16px;font-weight:700;color:var(--text)}
+.detail-badges{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-top:6px}
+
+/* STEP INDICATOR */
+.step-strip{display:flex;align-items:center;padding:0 20px;margin-bottom:14px;flex-shrink:0}
+.step-node{display:flex;flex-direction:column;align-items:center;gap:4px}
+.step-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;border:2px solid var(--border2);color:var(--text3);background:var(--bg2);transition:.25s;flex-shrink:0}
+.step-dot.done{background:var(--green);border-color:var(--green);color:#fff}
+.step-dot.active{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 0 0 4px rgba(26,92,255,.15)}
+.step-line{flex:1;height:2px;background:var(--border2);margin:0 4px;margin-bottom:16px}
+.step-line.done{background:var(--green)}
+.step-lbl{font-size:9px;color:var(--text3);text-align:center;white-space:nowrap;max-width:70px}
+.step-lbl.active{color:var(--accent-text);font-weight:600}
+.step-lbl.done{color:var(--green-text)}
+
+/* SCROLLABLE DETAIL BODY */
+.detail-body{flex:1;overflow-y:auto;padding:0 20px 20px}
+.icard{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:14px;margin-bottom:10px;box-shadow:var(--shadow)}
+.icard-title{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;display:flex;align-items:center;gap:6px;justify-content:space-between}
+.icard-title-left{display:flex;align-items:center;gap:6px}
+.irow{display:flex;justify-content:space-between;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--border)}
+.irow:last-child{border:none;padding-bottom:0}
+.ilbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;padding-top:1px}
+.ival{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--text);text-align:right;max-width:60%}
+.ival-normal{font-family:var(--sans);font-size:12px;font-weight:400;color:var(--text2);text-align:right;max-width:65%}
+
+/* PHOTOS */
+.photo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}
+.photo-t{aspect-ratio:1;border-radius:8px;overflow:hidden;background:var(--surface2);cursor:pointer;position:relative;transition:.12s}
+.photo-t:hover{outline:2px solid var(--accent)}
+.photo-t svg{width:100%;height:100%}
+.photo-expand{position:absolute;bottom:3px;right:3px;background:rgba(0,0,0,.4);border-radius:3px;padding:1px 4px;font-size:9px;color:#fff}
+
+/* CARRIER CHIPS */
+.carrier-row{display:flex;gap:6px;flex-wrap:wrap}
+.carrier-chip{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;border:1.5px solid var(--border2);background:var(--bg2);cursor:pointer;font-size:12px;font-weight:500;color:var(--text2);transition:.12s}
+.carrier-chip:hover{border-color:var(--border2);background:var(--surface)}
+.carrier-chip.sel{font-weight:600}
+.carrier-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* CLIENT SELECT */
+.client-select-wrap{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+.field-input{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:9px 32px 9px 11px;font-size:13px;color:var(--text);outline:none;transition:.15s;font-family:var(--sans);appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238890AA' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center}
+.field-input:focus{border-color:var(--accent);background:var(--bg2)}
+textarea.field-input{resize:none;background-image:none;padding-right:11px}
+
+/* NOTIFY BLOCK */
+.notify-block{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;margin-bottom:10px;box-shadow:var(--shadow)}
+.notify-head{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.notify-tabs{display:flex;gap:4px}
+.ntab{padding:5px 12px;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;transition:.12s;color:var(--text3);border:1.5px solid transparent}
+.ntab:hover{background:var(--surface);color:var(--text2)}
+.ntab.on{color:var(--text);border-color:var(--border2);background:var(--bg2)}
+.ntab.on.email-tab{color:var(--accent-text);border-color:var(--accent);background:var(--accent-bg)}
+.ntab.on.slack-tab{color:#4A154B;border-color:#9B59B6;background:#F8F0FF}
+.notify-body{padding:14px}
+.notify-preview{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-top:10px}
+.np-subject{font-size:11px;font-weight:600;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.np-from{font-size:10px;color:var(--text3);margin-bottom:8px}
+.np-body{font-size:11px;color:var(--text2);line-height:1.6}
+.np-body strong{color:var(--text);font-weight:600}
+.np-attach{display:flex;align-items:center;gap:6px;padding:7px 9px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;margin-top:8px;font-size:10px;color:var(--text2)}
+
+/* SLACK PREVIEW */
+.slack-preview{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-top:10px;border-left:4px solid #4A154B}
+.slack-bot{display:flex;align-items:center;gap:7px;margin-bottom:8px}
+.slack-av{width:28px;height:28px;border-radius:6px;background:#4A154B;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.slack-name{font-size:12px;font-weight:600;color:var(--text)}
+.slack-app{font-size:10px;color:var(--text3);background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:1px 5px;margin-left:4px}
+.slack-msg{font-size:12px;color:var(--text);line-height:1.6}
+.slack-msg code{background:var(--surface2);border-radius:3px;padding:1px 5px;font-family:var(--mono);font-size:11px}
+.slack-attach{background:var(--surface);border-radius:var(--r);padding:10px 12px;margin-top:8px;border-left:4px solid var(--accent)}
+.slack-attach-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px}
+.slack-field-row{display:flex;gap:16px;margin-top:6px;flex-wrap:wrap}
+.slack-field{flex:1;min-width:80px}
+.slack-field-l{font-size:10px;font-weight:600;color:var(--text2)}
+.slack-field-v{font-size:11px;color:var(--text)}
+
+/* EDIT AREA */
+.edit-wrap{position:relative}
+.edit-chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+.echip{padding:4px 9px;border-radius:20px;font-size:11px;background:var(--surface);color:var(--text2);border:1.5px solid var(--border2);cursor:pointer;transition:.1s;font-weight:500}
+.echip:hover{background:var(--accent-bg);color:var(--accent-text);border-color:var(--accent)}
+
+/* ZOHO BLOCK */
+.zoho-preview{background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--r2);padding:14px;margin-bottom:10px;position:relative;box-shadow:var(--shadow)}
+.zoho-logo{display:flex;align-items:center;gap:6px;margin-bottom:10px}
+.zoho-badge{background:#E8F5FF;border:1px solid #B8DCFF;border-radius:4px;padding:2px 8px;font-size:10px;font-weight:600;color:#0066CC;font-family:var(--mono)}
+.zoho-auto{position:absolute;top:14px;right:14px;background:var(--green-bg);border:1px solid #9FE0C8;border-radius:4px;padding:2px 7px;font-size:9px;font-weight:600;color:var(--green-text);text-transform:uppercase;letter-spacing:.04em}
+.zoho-deal-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px}
+.zoho-fields{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.zf{background:var(--surface);border-radius:6px;padding:7px 9px}
+.zf-l{font-size:9px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
+.zf-v{font-size:11px;font-weight:500;color:var(--text)}
+
+/* ACTION BAR */
+.action-bar{padding:12px 20px 14px;background:var(--bg2);border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;border:none;transition:.12s;font-family:var(--sans)}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--accent);color:#fff;flex:1}.btn-primary:hover{background:#1450E0}
+.btn-success{background:var(--green);color:#fff;flex:2}.btn-success:hover{background:#0A8059}
+.btn-ghost{background:var(--bg2);color:var(--text2);border:1px solid var(--border)}.btn-ghost:hover{background:var(--surface)}
+.btn-slack{background:#4A154B;color:#fff}.btn-slack:hover{background:#3A0F3B}
+.btn-sm{padding:7px 12px;font-size:11px}
+
+/* NOTIF ALERT */
+.alert-box{display:flex;align-items:flex-start;gap:10px;padding:10px 13px;border-radius:var(--r);margin-bottom:10px}
+.alert-red{background:var(--red-bg);border:1.5px solid #F0B8B8}
+.alert-purple{background:var(--purple-bg);border:1.5px solid #C8B0F0}
+.alert-green{background:var(--green-bg);border:1.5px solid #9FE0C8}
+.alert-blue{background:var(--accent-bg);border:1.5px solid #B8CCFF}
+.alert-warn{background:var(--warn-bg);border:1.5px solid #F0D090}
+.alert-icon{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* TIMELINE */
+.tl-item{display:flex;gap:10px;padding:5px 0;position:relative}
+.tl-item:not(:last-child):before{content:'';position:absolute;left:10px;top:24px;bottom:0;width:1px;background:var(--border)}
+.tl-dot{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.tl-title{font-size:11px;font-weight:500;color:var(--text)}
+.tl-meta{font-size:10px;color:var(--text3);margin-top:1px}
+
+/* RESOLVED BANNER */
+.resolved-banner{display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:var(--r2);background:var(--green-bg);border:2px solid var(--green);margin-bottom:10px}
+
+/* EMPTY STATE */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:10px;color:var(--text3);padding:40px}
+.empty-state svg{opacity:.3}
+.empty-state p{font-size:13px;font-weight:500;color:var(--text2)}
+.empty-state span{font-size:11px;text-align:center;max-width:200px}
+
+/* TOAST */
+.toast-wrap{position:fixed;bottom:16px;right:16px;z-index:500;display:flex;flex-direction:column;gap:7px;pointer-events:none;max-width:300px}
+.toast-item{background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--r2);padding:11px 13px;display:flex;align-items:flex-start;gap:9px;pointer-events:all;box-shadow:var(--shadow-md);animation:tIn .3s cubic-bezier(.34,1.1,.64,1);width:300px}
+.toast-item.t-green{border-left:4px solid var(--green)}
+.toast-item.t-blue{border-left:4px solid var(--accent)}
+.toast-item.t-purple{border-left:4px solid var(--purple)}
+@keyframes tIn{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
+.t-icon{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.t-body{flex:1}
+.t-title{font-size:11px;font-weight:600;color:var(--text);margin-bottom:1px}
+.t-msg{font-size:10px;color:var(--text2);line-height:1.4}
+.t-close{background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:0;line-height:1;flex-shrink:0}
+
+/* FIELD LABEL */
+.flbl{font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.freq{color:var(--red);font-size:10px}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="logo">CARGOS OS · E-COM</span>
+  <div class="topbar-center">
+    <span class="pill pill-blue" style="font-size:10px">Шимко Олег · EMEA</span>
+  </div>
+  <div class="topbar-right">
+    <div class="notif-btn" onclick="showToast('Нові сповіщення','3 нових запити зі складу НПЄ','blue')">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+      <div class="notif-dot"></div>
+    </div>
+    <div class="tb-user">
+      <span class="tb-name">Шимко Олег</span>
+      <div class="tb-av">ШО</div>
+    </div>
+  </div>
+</div>
+
+<div class="layout">
+
+<!-- ══ SIDEBAR ══ -->
+<div class="sidebar">
+  <div class="sb-head">
+    <div class="sb-title">Незареєстрований вантаж</div>
+    <div class="stat-grid">
+      <div class="stat-box sb-new" id="st-new" onclick="filterReqs('new')">
+        <div class="stat-n" style="color:var(--red)" id="cnt-new">2</div>
+        <div class="stat-l">Нові</div>
+      </div>
+      <div class="stat-box sb-inwork active" id="st-inwork" onclick="filterReqs('inwork')">
+        <div class="stat-n" style="color:var(--warn)" id="cnt-inwork">3</div>
+        <div class="stat-l">В роботі</div>
+      </div>
+      <div class="stat-box sb-done" id="st-done" onclick="filterReqs('done')">
+        <div class="stat-n" style="color:var(--green)" id="cnt-done">4</div>
+        <div class="stat-l">Завершено</div>
+      </div>
+      <div class="stat-box sb-all" id="st-all" onclick="filterReqs('all')">
+        <div class="stat-n" style="color:var(--text2)" id="cnt-all">9</div>
+        <div class="stat-l">Всі</div>
+      </div>
+    </div>
+    <div class="sb-search">
+      <svg class="sb-search-icon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" placeholder="Пошук за ID, клієнтом, сектором..." oninput="doSearch(this.value)">
+    </div>
+  </div>
+
+  <div class="sb-body" id="req-list"></div>
+</div>
+
+<!-- ══ MAIN ══ -->
+<div class="main">
+  <div class="empty-state" id="empty-state">
+    <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 9h6M9 13h4"/></svg>
+    <p>Оберіть запит зі списку</p>
+    <span>Клікніть на картку щоб переглянути деталі та відправити сповіщення клієнту</span>
+  </div>
+  <div id="detail-wrap" style="display:none;flex:1;overflow:hidden;display:none;flex-direction:column"></div>
+</div>
+
+</div>
+
+<!-- TOAST STACK -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+/* ── DATA ── */
+var reqs = [
+  {id:'4960', client:'Liki24', carrier:'DHL', sector:'А-2', time:'16:01', status:'new', urgent:true, comment:'логотип Liki24, ціла упаковка', aiHint:'Liki24 · 91%', region:'EMEA', isNew:true, notified:false, zohoCreated:false},
+  {id:'4872', client:null, carrier:'Yanwen', sector:'Б-2', time:'14:31', status:'new', urgent:false, comment:'без ознак клієнта, брендований скотч', aiHint:'Yanwen · APAC · 74%', region:'APAC', isNew:true, notified:false, zohoCreated:false},
+  {id:'4901', client:'ASOS', carrier:'DHL', sector:'В-1', time:'15:04', status:'inwork', urgent:false, comment:'пошкоджена упаковка', aiHint:null, region:'EMEA', isNew:false, notified:true, zohoCreated:true},
+  {id:'4915', client:'Temu', carrier:'Cainiao', sector:'А-4', time:'15:22', status:'inwork', urgent:false, comment:'кілька посилок разом', aiHint:null, region:'APAC', isNew:false, notified:true, zohoCreated:true},
+  {id:'4930', client:'H&M', carrier:'DHL', sector:'Б-3', time:'15:47', status:'inwork', urgent:true, comment:'крихкий, ризик затримки рейсу', aiHint:null, region:'EMEA', isNew:false, notified:false, zohoCreated:true},
+  {id:'4811', client:'Trendyol', carrier:'DHL', sector:'В-4', time:'12:10', status:'done', urgent:false, comment:'', aiHint:null, region:'EMEA', isNew:false, notified:true, zohoCreated:true},
+  {id:'4823', client:'Notino', carrier:null, sector:'А-1', time:'12:45', status:'done', urgent:false, comment:'', aiHint:null, region:'EMEA', isNew:false, notified:true, zohoCreated:true},
+  {id:'4840', client:'Liki24', carrier:'DHL', sector:'Б-1', time:'13:22', status:'done', urgent:false, comment:'', aiHint:null, region:'EMEA', isNew:false, notified:true, zohoCreated:true},
+  {id:'4858', client:'GymBeam', carrier:null, sector:'В-2', time:'14:05', status:'done', urgent:false, comment:'', aiHint:null, region:'EMEA', isNew:false, notified:true, zohoCreated:true},
+];
+
+var managers = {
+  'Liki24':'Шимко Олег','ASOS':'Валицька Катерина','H&M':'Валицька Катерина',
+  'Trendyol':'Шкабура Світлана','Notino':'Бондарчук Ірина','GymBeam':'Калашник Ольга',
+  'Temu':'Остапенко Оксана','Cainiao':'Булах-Березовська К.','GymBeam':'Калашник Ольга'
+};
+var clientEmails = {
+  'Liki24':'logistics@liki24.com','ASOS':'supply@asos.com','H&M':'hm-logistics@hm.com',
+  'Trendyol':'ops@trendyol.com','Notino':'warehouse@notino.com','GymBeam':'logistics@gymbeam.com',
+  'Temu':'carrier-ops@temu.com'
+};
+var clientSlack = {
+  'Liki24':true,'ASOS':true,'Temu':true,'Cainiao':true
+};
+
+var curId = null, curFilter = 'inwork', curSearch = '', selCarrier = null, notifyChannel = 'email';
+
+/* ── RENDER LIST ── */
+function renderList() {
+  var list = document.getElementById('req-list');
+  list.innerHTML = '';
+  var groups = [{key:'new',label:'Нові запити',color:'var(--red)'},{key:'inwork',label:'В роботі',color:'var(--warn)'},{key:'done',label:'Завершено',color:'var(--green)'}];
+  var counts = {new:0,inwork:0,done:0,all:0};
+  reqs.forEach(function(r){ counts[r.status]++; counts.all++; });
+  document.getElementById('cnt-new').textContent = counts.new;
+  document.getElementById('cnt-inwork').textContent = counts.inwork;
+  document.getElementById('cnt-done').textContent = counts.done;
+  document.getElementById('cnt-all').textContent = counts.all;
+
+  groups.forEach(function(g){
+    if(curFilter !== 'all' && curFilter !== g.key) return;
+    var items = reqs.filter(function(r){
+      if(r.status !== g.key) return false;
+      if(!curSearch) return true;
+      var s = curSearch.toLowerCase();
+      return r.id.includes(s)||(r.client&&r.client.toLowerCase().includes(s))||r.sector.toLowerCase().includes(s)||(r.carrier&&r.carrier.toLowerCase().includes(s));
+    });
+    if(!items.length) return;
+    if(curFilter === 'all'){
+      var gl = document.createElement('div');
+      gl.className = 'group-lbl';
+      gl.innerHTML = g.label + ' <span style="font-family:var(--mono);font-weight:700;color:'+g.color+'">'+items.length+'</span>';
+      list.appendChild(gl);
+    }
+    items.forEach(function(r){ list.appendChild(buildCard(r)); });
+  });
+}
+
+function buildCard(r) {
+  var el = document.createElement('div');
+  el.className = 'req-card' + (r.id===curId?' sel':'') + (r.urgent?' urgent':'');
+  el.onclick = function(){ selectReq(r.id); };
+  var barCls = {new:'rcb-new',inwork:'rcb-inwork',done:'rcb-done'}[r.status];
+  var sp = r.status==='new'?'<span class="pill pill-red" style="font-size:9px;padding:1px 6px">Новий</span>':r.status==='inwork'?'<span class="pill pill-warn" style="font-size:9px;padding:1px 6px">В роботі</span>':'<span class="pill pill-green" style="font-size:9px;padding:1px 6px">Завершено</span>';
+  var notifBadge = r.notified ? '<span class="pill pill-purple" style="font-size:9px;padding:1px 6px">✉ Сповіщено</span>' : '';
+  var urgBadge = r.urgent ? '<span class="pill pill-red" style="font-size:9px;padding:1px 6px">Терміново</span>' : '';
+  var ai = r.aiHint ? '<div class="ai-hint"><svg width="9" height="9" viewBox="0 0 10 10" fill="var(--purple)"><polygon points="5,0 9,3 9,7 5,10 1,7 1,3"/></svg>АІ: '+r.aiHint+'</div>' : '';
+  el.innerHTML = '<div class="rc-bar '+barCls+'"></div>'+
+    '<div style="padding-left:6px">'+
+      '<div class="rc-head"><span class="rc-id">#TMP-'+r.id+'</span><span class="rc-time">'+r.time+'</span></div>'+
+      '<div class="rc-client">'+(r.client||'<span style="color:var(--text3);font-style:italic;font-size:12px">Клієнт не визначений</span>')+'</div>'+
+      '<div class="rc-sub">Сектор '+r.sector+(r.carrier?' · '+r.carrier:'')+'</div>'+
+      ai+
+      '<div class="rc-badges" style="margin-top:4px">'+sp+urgBadge+notifBadge+'</div>'+
+    '</div>'+(r.isNew?'<div class="unread-dot"></div>':'');
+  return el;
+}
+
+function filterReqs(f) {
+  curFilter = f;
+  document.querySelectorAll('.stat-box').forEach(function(s){ s.classList.remove('active'); });
+  document.getElementById('st-'+f).classList.add('active');
+  renderList();
+}
+
+function doSearch(v){ curSearch = v; renderList(); }
+
+/* ── SELECT / DETAIL ── */
+function selectReq(id) {
+  curId = id;
+  selCarrier = null;
+  notifyChannel = 'email';
+  var r = reqs.find(function(x){ return x.id===id; });
+  if(!r) return;
+  r.isNew = false;
+  renderList();
+  document.getElementById('empty-state').style.display = 'none';
+  var dw = document.getElementById('detail-wrap');
+  dw.style.display = 'flex';
+  buildDetail(r);
+}
+
+function buildDetail(r) {
+  var dw = document.getElementById('detail-wrap');
+  var isDone = r.status === 'done';
+  var hasClient = !!r.client;
+  var hasNotified = r.notified;
+
+  // Step state
+  var s1 = hasClient, s2 = hasNotified, s3 = isDone;
+  function sdot(n){
+    var done = n===1?s1:n===2?s2:s3;
+    var active = n===1?!s1:n===2?s1&&!s2:s1&&s2&&!s3;
+    return '<div class="step-dot '+(done?'done':active?'active':'')+'">'+(done?'<svg width="11" height="11" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>':n)+'</div>';
+  }
+  function sline(done){ return '<div class="step-line'+(done?' done':'')+'"></div>'; }
+  function slbl(n,txt){ var done=n===1?s1:n===2?s2:s3; var active=n===1?!s1:n===2?s1&&!s2:s1&&s2&&!s3; return '<span class="step-lbl'+(done?' done':active?' active':'')+'">'+txt+'</span>'; }
+
+  // Alerts
+  var alerts = '';
+  if(r.urgent) alerts += '<div class="alert-box alert-red"><div class="alert-icon" style="background:var(--red-bg)"><svg width="13" height="13" fill="var(--red)" viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm0 3.5L20.5 20h-17L12 5.5zM11 10v4h2v-4h-2zm0 6v2h2v-2h-2z"/></svg></div><div><div style="font-size:12px;font-weight:600;color:var(--red-text)">Терміново — ризик затримки рейсу</div><div style="font-size:11px;color:var(--red-text);opacity:.8">Необхідно обробити до 18:00</div></div></div>';
+  if(r.aiHint&&!hasClient) alerts += '<div class="alert-box alert-purple"><div class="alert-icon" style="background:var(--purple-bg)"><svg width="11" height="11" viewBox="0 0 10 10" fill="var(--purple)"><polygon points="5,0 9,3 9,7 5,10 1,7 1,3"/></svg></div><div><div style="font-size:12px;font-weight:600;color:var(--purple-text)">АІ-підказка: '+r.aiHint+'</div><div style="font-size:11px;color:var(--purple-text);opacity:.8">Визначено за перевізником та фото. Підтвердіть або оберіть вручну.</div></div></div>';
+  if(hasNotified&&!isDone) alerts += '<div class="alert-box alert-green"><div class="alert-icon" style="background:var(--green-bg)"><svg width="13" height="13" fill="none" stroke="var(--green)" stroke-width="2" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div><div><div style="font-size:12px;font-weight:600;color:var(--green-text)">Клієнта сповіщено — очікуємо преалерт</div><div style="font-size:11px;color:var(--green-text);opacity:.8">Очікується реєстрація відправлення клієнтом</div></div></div>';
+
+  // Resolved banner
+  var resolvedHtml = isDone ? '<div class="resolved-banner"><div style="width:36px;height:36px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div><div><div style="font-size:13px;font-weight:700;color:var(--green-text)">Вантаж зареєстровано та завершено</div><div style="font-size:11px;color:var(--green-text);opacity:.8;margin-top:1px">Клієнт отримав підтвердження · Zoho Deal закрито</div></div></div>' : '';
+
+  // Photos
+  var photosHtml = '<div class="icard"><div class="icard-title"><div class="icard-title-left"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Фото зі складу НПЄ</div><span style="font-size:10px;color:var(--text3)">4 фото</span></div><div class="photo-grid"><div class="photo-t"><svg viewBox="0 0 60 60"><rect width="60" height="60" fill="#EEF0F6"/><rect x="10" y="18" width="40" height="25" rx="2" fill="#D8DCE8"/><rect x="14" y="22" width="20" height="4" rx="1" fill="#8890AA"/><rect x="14" y="28" width="32" height="2" rx="1" fill="#C2C8D8"/></svg><div class="photo-expand">↗</div></div><div class="photo-t"><svg viewBox="0 0 60 60"><rect width="60" height="60" fill="#EEF0F6"/><rect x="8" y="12" width="44" height="36" rx="3" fill="#D8DCE8"/><line x1="12" y1="30" x2="48" y2="30" stroke="#C2C8D8"/><line x1="30" y1="16" x2="30" y2="44" stroke="#C2C8D8"/></svg><div class="photo-expand">↗</div></div><div class="photo-t"><svg viewBox="0 0 60 60"><rect width="60" height="60" fill="#EEF0F6"/><rect x="8" y="12" width="44" height="36" rx="3" fill="#D8DCE8"/><rect x="18" y="20" width="24" height="20" rx="2" fill="#EEF0F6" stroke="#C2C8D8"/></svg><div class="photo-expand">↗</div></div><div class="photo-t"><svg viewBox="0 0 60 60"><rect width="60" height="60" fill="#EEF0F6"/><rect x="8" y="12" width="44" height="36" rx="3" fill="#D8DCE8"/><path d="M15 38L22 26L29 32L36 22L45 38Z" fill="#FEF0E6" stroke="#E8650A" stroke-width="1.5" stroke-linejoin="round"/></svg><div class="photo-expand">↗</div></div></div><div style="margin-top:8px"><div class="irow"><span class="ilbl">Підрядник</span><span class="ival">'+(r.carrier||'—')+'</span></div><div class="irow"><span class="ilbl">Сектор</span><span class="ival">'+r.sector+'</span></div>'+(r.comment?'<div class="irow" style="border:none"><span class="ilbl">Коментар складу</span><span class="ival-normal">'+r.comment+'</span></div>':'')+'</div></div>';
+
+  // Client + carrier form
+  var clientOpts = ['Liki24','ASOS','Notino','Trendyol','H&M','GymBeam','DPD','Starlink','Revolut','Footshop'].map(function(c){ return '<option'+(r.client===c?' selected':'')+'>'+c+'</option>'; }).join('');
+  var carrierChips = [
+    {name:'DHL',color:'#D63B3B'},{name:'DPD',color:'#C0392B'},{name:'Cainiao',color:'#E8850A'},
+    {name:'Yun Express',color:'#1A5CFF'},{name:'Yanwen',color:'#D63B3B'},{name:'Velox',color:'#1A1D2E'},{name:'Soon Soon Link',color:'#0D9E6A'}
+  ].map(function(c){ return '<div class="carrier-chip'+(r.carrier===c.name?' sel':'')+'" onclick="pickCarrier(this,\''+c.name+'\',\''+c.color+'\')" style="'+(r.carrier===c.name?'border-color:'+c.color+';background:'+c.color+'18;color:'+c.color+';font-weight:600':'')+'"><span class="carrier-dot" style="background:'+c.color+'"></span>'+c.name+'</div>'; }).join('');
+
+  var identForm = !isDone ? '<div class="icard"><div class="icard-title"><div class="icard-title-left"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Ідентифікація</div></div><div style="display:flex;flex-direction:column;gap:10px"><div><div class="flbl">Підрядник першої милі</div><div class="carrier-row" id="carrier-row">'+carrierChips+'</div></div><div><div class="flbl">Клієнт E-com <span class="freq">*</span></div><div class="client-select-wrap"><select class="field-input" id="f-client" onchange="setClient(\''+r.id+'\',this.value)"><option value="">— Оберіть клієнта —</option><optgroup label="EMEA">'+clientOpts+'</optgroup><optgroup label="APAC"><option>Temu</option><option>Cainiao</option><option>Yanwen</option></optgroup><optgroup label="NALA"><option>iHerb</option><option>Velox</option></optgroup></select><button class="btn btn-ghost btn-sm" style="white-space:nowrap" onclick="autoDetect()">✦ АІ визначить</button></div></div></div></div>' : '';
+
+  // Notify block
+  var hasSlack = r.client && clientSlack[r.client];
+  var emailAddr = r.client && clientEmails[r.client] ? clientEmails[r.client] : 'client@example.com';
+  var notifyHtml = !isDone && hasClient ? buildNotifyBlock(r, hasSlack, emailAddr) : '';
+
+  // Zoho block
+  var zohoHtml = r.zohoCreated ? '<div class="zoho-preview"><div class="zoho-logo"><div class="zoho-badge">ZOHO CRM</div><span style="font-size:11px;color:var(--text3)">Deal створено автоматично</span></div><div class="zoho-auto">AUTO</div><div class="zoho-deal-title">Незареєстрований вантаж · #TMP-'+r.id+'</div><div class="zoho-fields"><div class="zf"><div class="zf-l">Клієнт</div><div class="zf-v">'+(r.client||'—')+'</div></div><div class="zf"><div class="zf-l">Менеджер</div><div class="zf-v">'+(r.client&&managers[r.client]||'Шимко Олег')+'</div></div><div class="zf"><div class="zf-l">Статус</div><div class="zf-v">'+(isDone?'Закрито':r.notified?'В процесі':'Відкрито')+'</div></div><div class="zf"><div class="zf-l">TMP ID</div><div class="zf-v" style="font-family:var(--mono);font-size:10px">#TMP-'+r.id+'</div></div><div class="zf"><div class="zf-l">Сектор</div><div class="zf-v">'+r.sector+'</div></div><div class="zf"><div class="zf-l">Відкрито</div><div class="zf-v">'+r.time+' · сьогодні</div></div></div></div>' : '<div class="icard" style="opacity:.5"><div class="icard-title"><div class="icard-title-left">Zoho Deal — буде створено після визначення клієнта</div></div></div>';
+
+  // Timeline
+  var tlHtml = '<div class="icard"><div class="icard-title"><div class="icard-title-left">Хронологія</div></div>'+
+    '<div class="tl-item"><div class="tl-dot" style="background:var(--surface2)"><svg width="10" height="10" fill="none" stroke="var(--text3)" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/></svg></div><div><div class="tl-title">Запит створено складом НПЄ</div><div class="tl-meta">'+r.time+' · Петренко О. · Сектор '+r.sector+'</div></div></div>'+
+    (hasClient?'<div class="tl-item"><div class="tl-dot" style="background:var(--accent-bg)"><svg width="10" height="10" viewBox="0 0 10 10" fill="var(--purple)"><polygon points="5,0 9,3 9,7 5,10 1,7 1,3"/></svg></div><div><div class="tl-title">Клієнта визначено — '+(r.client)+'</div><div class="tl-meta">Автоматично · AI routing</div></div></div>':'')+
+    (r.zohoCreated?'<div class="tl-item"><div class="tl-dot" style="background:#E8F5FF"><svg width="10" height="10" fill="#0066CC" viewBox="0 0 10 10"><rect x="1" y="2" width="8" height="6" rx="1"/><path d="M1 4l4 2.5L9 4" stroke="#fff" stroke-width="1"/></svg></div><div><div class="tl-title">Zoho Deal створено автоматично</div><div class="tl-meta">Cargos → Zoho API</div></div></div>':'')+
+    (hasNotified?'<div class="tl-item"><div class="tl-dot" style="background:var(--green-bg)"><svg width="10" height="10" fill="none" stroke="var(--green)" stroke-width="2" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div><div><div class="tl-title">Клієнта сповіщено</div><div class="tl-meta">Email надіслано на '+emailAddr+'</div></div></div>':'')+
+    (isDone?'<div class="tl-item"><div class="tl-dot" style="background:var(--green-bg)"><svg width="10" height="10" fill="none" stroke="var(--green)" stroke-width="2" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div><div><div class="tl-title">Вантаж зареєстровано · Завершено</div><div class="tl-meta">Zoho Deal закрито автоматично</div></div></div>':'')+
+    '</div>';
+
+  // Action bar
+  var actionHtml = '';
+  if(!isDone) {
+    if(!hasClient) {
+      actionHtml = '<button class="btn btn-ghost" style="flex:1" onclick="autoDetect()"><svg width="13" height="13" viewBox="0 0 10 10" fill="var(--purple)"><polygon points="5,0 9,3 9,7 5,10 1,7 1,3"/></svg>АІ-визначення клієнта</button>';
+    } else if(!hasNotified) {
+      actionHtml = '<button class="btn btn-success" onclick="sendNotification(\''+r.id+'\')"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg>Надіслати сповіщення клієнту</button>'+(hasSlack?'<button class="btn btn-slack" onclick="sendSlack(\''+r.id+'\')"><svg width="13" height="13" fill="#fff" viewBox="0 0 24 24"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/><path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/><path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"/><path d="M14 9.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"/><path d="M15.5 19H14v-1.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/><path d="M10 14.5c0 .83-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5S2.67 13 3.5 13h5c.83 0 1.5.67 1.5 1.5z"/><path d="M8.5 5H10v1.5c0 .83-.67 1.5-1.5 1.5S7 7.33 7 6.5 7.67 5 8.5 5z"/></svg>Slack</button>':'');
+    } else {
+      actionHtml = '<button class="btn btn-primary" onclick="completeReq(\''+r.id+'\')"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Завершити запит</button><button class="btn btn-ghost" onclick="sendNotification(\''+r.id+'\')">Повторно сповістити</button>';
+    }
+  }
+
+  dw.innerHTML =
+    '<div class="main-head">'+
+      alerts+
+      resolvedHtml+
+      '<div class="detail-topbar">'+
+        '<div>'+
+          '<div class="detail-id">Запит на ідентифікацію вантажу</div>'+
+          '<div class="detail-title">#TMP-20240331-'+r.id+'</div>'+
+          '<div class="detail-badges">'+
+            (r.client?'<span class="pill pill-blue">'+r.client+'</span>':'<span class="pill pill-gray">Клієнт не визначений</span>')+
+            (r.urgent?'<span class="pill pill-red">Терміново</span>':'')+
+            (r.notified?'<span class="pill pill-purple">✉ Клієнта сповіщено</span>':'')+
+            (r.zohoCreated?'<span class="pill" style="background:#E8F5FF;color:#0066CC;border:1px solid #B8DCFF;font-size:11px">Zoho Deal</span>':'')+
+          '</div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="step-strip">'+
+        '<div class="step-node">'+sdot(1)+'<div style="display:flex;justify-content:center;margin-top:4px">'+slbl(1,'Визначити клієнта')+'</div></div>'+sline(s1)+
+        '<div class="step-node">'+sdot(2)+'<div style="display:flex;justify-content:center;margin-top:4px">'+slbl(2,'Сповістити клієнта')+'</div></div>'+sline(s2)+
+        '<div class="step-node">'+sdot(3)+'<div style="display:flex;justify-content:center;margin-top:4px">'+slbl(3,'Завершити')+'</div></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="detail-body">'+photosHtml+identForm+notifyHtml+zohoHtml+tlHtml+'</div>'+
+    (actionHtml?'<div class="action-bar">'+actionHtml+'</div>':'');
+}
+
+function buildNotifyBlock(r, hasSlack, emailAddr) {
+  var emailPreview = '<div class="notify-preview"><div class="np-subject"><svg width="11" height="11" fill="none" stroke="var(--accent)" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Незареєстрований вантаж — потрібна реєстрація преалерту</div><div class="np-from">Від: noreply@cargos.ua · До: '+emailAddr+'</div><div class="np-body">Доброго дня,<br><br>На складі НПЄ було отримано вантаж, який не вдалося автоматично ідентифікувати в системі Cargos. Будь ласка, зареєструйте преалерт для цього відправлення.<br><br><strong>Тимчасовий ID:</strong> #TMP-'+r.id+'<br><strong>Сектор:</strong> '+r.sector+'<br><strong>Перевізник:</strong> '+(r.carrier||'не визначено')+'<br><strong>Час надходження:</strong> '+r.time+' сьогодні<br><br>Після реєстрації вантаж буде автоматично прийнято системою.</div><div class="np-attach"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>4 фото вантажу · warehouse_photos_TMP-'+r.id+'.zip</div></div>';
+
+  var slackPreview = hasSlack ? '<div class="slack-preview"><div class="slack-bot"><div class="slack-av"><svg width="14" height="14" fill="#fff" viewBox="0 0 24 24"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/><path d="M14 9.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"/><path d="M10 14.5c0 .83-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5S2.67 13 3.5 13h5c.83 0 1.5.67 1.5 1.5z"/></svg></div><div><span class="slack-name">Cargos Bot</span><span class="slack-app">APP</span></div></div><div class="slack-msg">🚨 <strong>Незареєстрований вантаж на НПЄ</strong><br>Вантаж <code>#TMP-'+r.id+'</code> очікує реєстрації преалерту. Будь ласка, зареєструйте відправлення в системі.</div><div class="slack-attach"><div class="slack-attach-title">📦 Деталі вантажу</div><div class="slack-field-row"><div class="slack-field"><div class="slack-field-l">Тимч. ID</div><div class="slack-field-v">#TMP-'+r.id+'</div></div><div class="slack-field"><div class="slack-field-l">Сектор</div><div class="slack-field-v">'+r.sector+'</div></div><div class="slack-field"><div class="slack-field-l">Перевізник</div><div class="slack-field-v">'+(r.carrier||'—')+'</div></div><div class="slack-field"><div class="slack-field-l">Час</div><div class="slack-field-v">'+r.time+'</div></div></div></div></div>' : '';
+
+  return '<div class="notify-block"><div class="notify-head"><div style="font-size:11px;font-weight:600;color:var(--text2);display:flex;align-items:center;gap:6px"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg>Сповіщення клієнту</div><div class="notify-tabs"><div class="ntab email-tab on" id="ntab-email" onclick="switchNotifyTab(\'email\')"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Email</div>'+(hasSlack?'<div class="ntab slack-tab" id="ntab-slack" onclick="switchNotifyTab(\'slack\')"><svg width="11" height="11" fill="currentColor" viewBox="0 0 24 24"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/><path d="M14 9.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"/><path d="M10 14.5c0 .83-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5S2.67 13 3.5 13h5c.83 0 1.5.67 1.5 1.5z"/></svg>Slack</div>':'')+'</div></div><div class="notify-body"><div><div class="flbl">Додаткове повідомлення (опційно)</div><textarea class="field-input" rows="2" placeholder="Додайте коментар до стандартного листа..."></textarea><div class="edit-chips"><div class="echip" onclick="addComment(this)">+ Ризик затримки рейсу</div><div class="echip" onclick="addComment(this)">+ Термінова реєстрація</div><div class="echip" onclick="addComment(this)">+ Вантаж пошкоджений</div></div></div><div id="email-preview">'+emailPreview+'</div><div id="slack-preview" style="display:none">'+slackPreview+'</div></div></div>';
+}
+
+/* ── ACTIONS ── */
+function switchNotifyTab(tab) {
+  notifyChannel = tab;
+  document.querySelectorAll('.ntab').forEach(function(t){ t.classList.remove('on'); });
+  var el = document.getElementById('ntab-'+tab);
+  if(el) el.classList.add('on');
+  var ep = document.getElementById('email-preview');
+  var sp = document.getElementById('slack-preview');
+  if(ep) ep.style.display = tab==='email' ? 'block' : 'none';
+  if(sp) sp.style.display = tab==='slack' ? 'block' : 'none';
+}
+
+function setClient(id, val) {
+  var r = reqs.find(function(x){ return x.id===id; });
+  if(r){
+    r.client = val||null;
+    if(val && !r.zohoCreated){ r.zohoCreated=true; }
+    selectReq(id);
+  }
+}
+
+function pickCarrier(el, name, color) {
+  var r = reqs.find(function(x){ return x.id===curId; });
+  if(!r) return;
+  document.querySelectorAll('.carrier-chip').forEach(function(c){ c.style.cssText=''; });
+  if(selCarrier===name){ selCarrier=null; r.carrier=null; return; }
+  selCarrier=name; r.carrier=name;
+  el.style.borderColor=color; el.style.background=color+'18'; el.style.color=color; el.style.fontWeight='600';
+}
+
+function autoDetect() {
+  var r = reqs.find(function(x){ return x.id===curId; });
+  if(!r) return;
+  showToast('АІ визначає клієнта...','Аналіз фото та перевізника','purple');
+  setTimeout(function(){
+    r.client = r.aiHint ? r.aiHint.split(' · ')[0].split(' ')[0] : 'Liki24';
+    r.zohoCreated = true;
+    selectReq(curId);
+    showToast('Клієнта визначено — '+r.client,'Впевненість: 91% · Zoho Deal створено','green');
+  }, 1400);
+}
+
+function sendNotification(id) {
+  var r = reqs.find(function(x){ return x.id===id; });
+  if(!r||!r.client) { showToast('Спочатку визначте клієнта','Оберіть клієнта зі списку','blue'); return; }
+  var ch = notifyChannel;
+  showToast('Надсилаємо...','Підключення до '+(ch==='slack'?'Slack':'поштового сервера'),'blue');
+  setTimeout(function(){
+    r.notified = true;
+    r.status = 'inwork';
+    renderList();
+    selectReq(id);
+    showToast(ch==='slack'?'Slack повідомлення надіслано ✓':'Email надіслано ✓',r.client+' · '+(ch==='slack'?'#logistics-channel':'logistics@'+r.client.toLowerCase()+'.com'),'green');
+  }, 1200);
+}
+
+function sendSlack(id) {
+  notifyChannel = 'slack';
+  switchNotifyTab('slack');
+  sendNotification(id);
+}
+
+function completeReq(id) {
+  var r = reqs.find(function(x){ return x.id===id; });
+  if(!r) return;
+  r.status = 'done';
+  r.zohoCreated = true;
+  renderList();
+  selectReq(id);
+  showToast('Запит завершено ✓','Zoho Deal закрито автоматично · '+r.client,'green');
+}
+
+function addComment(el) {
+  var ta = document.querySelector('.notify-body textarea');
+  if(ta){ ta.value = ta.value ? ta.value+'. '+el.textContent.slice(2) : el.textContent.slice(2); }
+}
+
+/* ── TOAST ── */
+function showToast(title, msg, type) {
+  var wrap = document.getElementById('toast-wrap');
+  var el = document.createElement('div');
+  el.className = 'toast-item t-'+(type||'blue');
+  var bgMap={green:'var(--green-bg)',blue:'var(--accent-bg)',purple:'var(--purple-bg)'};
+  var colMap={green:'var(--green)',blue:'var(--accent)',purple:'var(--purple)'};
+  var icMap={green:'<path d="M20 6L9 17l-5-5"/>',blue:'<circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>',purple:'<polygon points="12,2 22,8.5 22,15.5 12,22 2,15.5 2,8.5"/>'};
+  el.innerHTML='<div class="t-icon" style="background:'+bgMap[type]+'"><svg width="12" height="12" fill="none" stroke="'+colMap[type]+'" stroke-width="2.5" viewBox="0 0 24 24">'+icMap[type]+'</svg></div>'+
+    '<div class="t-body"><div class="t-title">'+title+'</div><div class="t-msg">'+msg+'</div></div>'+
+    '<button class="t-close" onclick="this.parentNode.remove()">×</button>';
+  wrap.appendChild(el);
+  setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); }, 4500);
+}
+
+/* ── INIT ── */
+filterReqs('inwork');
+setTimeout(function(){
+  showToast('Новий запит зі складу НПЄ','#TMP-4960 · Сектор А-2 · Liki24 · Терміново','blue');
+}, 1500);
+</script>
+</body>
+</html>
