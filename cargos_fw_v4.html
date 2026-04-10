@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cargos — Favorite Warehouse</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #f4f3ef;
+    --surface:   #ffffff;
+    --border:    #e2e0d9;
+    --border2:   #cac8c0;
+    --text:      #1c1b18;
+    --muted:     #7a7870;
+    --hint:      #b0aea5;
+    --blue-bg:   #e8f1fb;
+    --blue-mid:  #b4d0f0;
+    --blue:      #1660b0;
+    --green-bg:  #e2f4ed;
+    --green:     #0a6645;
+    --amber-bg:  #faeedd;
+    --amber:     #7a4c08;
+    --red-bg:    #fceaea;
+    --red:       #9a2b2b;
+    --purple-bg: #eeedfd;
+    --purple:    #3c3488;
+    --gray-bg:   #f1efe8;
+    --gray:      #4a4845;
+    --teal-bg:   #e0f3f0;
+    --teal:      #0a5c55;
+  }
+
+  body {
+    font-family: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 13px;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 28px 20px 48px;
+  }
+
+  .shell {
+    max-width: 960px; margin: 0 auto;
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 12px; overflow: hidden;
+  }
+
+  .nav {
+    display: flex; height: 40px;
+    border-bottom: 0.5px solid var(--border);
+    background: var(--bg); padding: 0 12px; align-items: stretch;
+  }
+  .nav-tab {
+    display: flex; align-items: center; padding: 0 14px;
+    font-size: 12px; color: var(--muted); cursor: pointer;
+    border-bottom: 2px solid transparent; white-space: nowrap;
+  }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+  .body { display: flex; min-height: 520px; }
+
+  .sidebar {
+    width: 192px; flex-shrink: 0;
+    border-right: 0.5px solid var(--border);
+    background: var(--bg); padding: 6px 0;
+  }
+  .sidebar-row {
+    display: flex; align-items: center; gap: 7px;
+    padding: 7px 14px; font-size: 12px; color: var(--muted); cursor: pointer;
+  }
+  .sidebar-row.active { background: var(--surface); color: var(--text); }
+
+  .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+  .sub-nav {
+    display: flex; height: 36px;
+    border-bottom: 0.5px solid var(--border);
+    padding: 0 16px; align-items: stretch;
+  }
+  .sub-tab {
+    display: flex; align-items: center; padding: 0 13px;
+    font-size: 12px; color: var(--muted); cursor: pointer;
+    border-bottom: 2px solid transparent;
+  }
+  .sub-tab:hover { color: var(--text); }
+  .sub-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+  .content { padding: 16px 20px; flex: 1; }
+
+  .ctabs {
+    display: flex; align-items: center;
+    border-bottom: 0.5px solid var(--border); margin-bottom: 16px;
+  }
+  .ctab {
+    display: flex; align-items: center; gap: 5px;
+    padding: 6px 13px; font-size: 12px; color: var(--muted);
+    border-bottom: 2px solid transparent; cursor: pointer; margin-bottom: -0.5px;
+  }
+  .ctab:hover { color: var(--text); }
+  .ctab.active { color: var(--blue); border-bottom-color: var(--blue); font-weight: 500; }
+  .ctab-x   { color: var(--border2); font-size: 10px; }
+  .ctab-add { padding: 6px 10px; color: var(--border2); font-size: 18px; cursor: pointer; }
+  .ctab-add:hover { color: var(--muted); }
+
+  .sc-bar {
+    display: flex; align-items: center; gap: 6px;
+    margin-bottom: 16px; flex-wrap: wrap;
+  }
+  .sc-label { font-size: 11px; color: var(--hint); margin-right: 2px; }
+  .sc-btn {
+    padding: 4px 11px; border-radius: 20px; font-size: 11px; cursor: pointer;
+    border: 0.5px solid var(--border); background: var(--bg); color: var(--muted);
+    font-family: inherit; transition: all .15s;
+  }
+  .sc-btn:hover { border-color: var(--border2); color: var(--text); }
+  .sc-btn.on { background: var(--blue-bg); color: var(--blue); border-color: var(--blue-mid); }
+
+  .group-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 5px 0; margin: 4px 0 2px;
+  }
+  .group-label {
+    font-size: 10px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .07em; color: var(--muted); white-space: nowrap;
+  }
+  .group-line { flex: 1; height: 0.5px; background: var(--border); }
+
+  /* ── table ── */
+  table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
+  th {
+    padding: 6px 10px; text-align: left; font-weight: 500;
+    font-size: 10px; text-transform: uppercase; letter-spacing: .05em;
+    color: var(--muted); border-bottom: 0.5px solid var(--border); background: var(--bg);
+  }
+  td { padding: 10px 10px; border-bottom: 0.5px solid var(--border); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr.faded td { opacity: .42; }
+
+  /* ── chips ── */
+  .chip {
+    display: inline-flex; padding: 2px 8px; border-radius: 20px;
+    font-size: 11px; font-weight: 500; white-space: nowrap;
+  }
+  .chip-npu      { background: var(--amber-bg); color: var(--amber); }
+  .chip-inpost   { background: var(--amber-bg); color: var(--amber); }
+  .chip-cargos   { background: var(--green-bg); color: var(--green); }
+  .chip-npu-app  { background: var(--teal-bg);  color: var(--teal); }
+  .chip-legacy   { background: var(--gray-bg);  color: var(--gray); }
+
+  .via-badge {
+    display: inline-flex; align-items: center; gap: 3px;
+    padding: 1px 7px; border-radius: 20px; font-size: 10px; font-weight: 500;
+    margin-left: 6px; vertical-align: middle; white-space: nowrap;
+  }
+  .via-temu   { background: var(--purple-bg); color: var(--purple); }
+  .via-mynova { background: var(--blue-bg);   color: var(--blue); }
+  .via-manual { background: var(--gray-bg);   color: var(--gray); }
+
+  /* ── npu-app expand row ── */
+  .expand-toggle {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; color: var(--muted); cursor: pointer;
+    padding: 2px 0; user-select: none;
+  }
+  .expand-toggle:hover { color: var(--text); }
+  .expand-arrow { font-size: 9px; transition: transform .2s; display: inline-block; }
+  .expand-arrow.open { transform: rotate(90deg); }
+
+  .npu-app-subtypes {
+    margin-top: 8px; display: flex; flex-direction: column; gap: 5px;
+  }
+  .subtype-row {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 7px 10px; border-radius: 8px;
+    background: var(--bg); border: 0.5px solid var(--border);
+  }
+  .subtype-row.has-data { background: var(--teal-bg); border-color: #9fd8d2; }
+  .subtype-label {
+    font-size: 11px; font-weight: 500; color: var(--muted);
+    white-space: nowrap; min-width: 130px; padding-top: 1px;
+  }
+  .subtype-row.has-data .subtype-label { color: var(--teal); }
+  .subtype-val { font-size: 11px; color: var(--text); line-height: 1.4; }
+  .subtype-empty { font-size: 11px; color: var(--border2); font-style: italic; }
+  .subtype-dis {
+    display: inline-flex; align-items: center; gap: 3px;
+    padding: 1px 6px; border-radius: 20px; font-size: 10px;
+    background: var(--amber-bg); color: var(--amber); margin-top: 3px;
+  }
+
+  /* ── warehouse ── */
+  .wh-name  { font-size: 12px; color: var(--text); line-height: 1.4; }
+  .wh-sub   { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .wh-empty { font-size: 11px; color: var(--border2); font-style: italic; }
+
+  .date-val   { font-size: 11px; color: var(--muted); white-space: nowrap; }
+  .date-empty { font-size: 11px; color: var(--border2); font-style: italic; }
+
+  .dis-badge  {
+    display: inline-flex; align-items: center; gap: 3px;
+    padding: 1px 7px; border-radius: 20px; font-size: 10px; font-weight: 500;
+    background: var(--amber-bg); color: var(--amber); margin-top: 5px;
+  }
+  .dis-reason { font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .dis-at     { font-size: 10px; color: var(--border2); margin-top: 1px; }
+
+  /* ── buttons ── */
+  .action-btn {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 4px 10px; border-radius: 7px; font-size: 11px; cursor: pointer;
+    border: 0.5px solid var(--border); background: transparent; color: var(--muted);
+    font-family: inherit; transition: all .15s; white-space: nowrap;
+  }
+  .action-btn:hover  { background: var(--bg); border-color: var(--border2); }
+  .action-btn.danger  { border-color: #f0a0a0; color: var(--red); }
+  .action-btn.danger:hover  { background: var(--red-bg); }
+  .action-btn.success { border-color: #8dd6b8; color: var(--green); }
+  .action-btn.success:hover { background: var(--green-bg); }
+  .action-btn.primary { border-color: var(--blue-mid); color: var(--blue); }
+  .action-btn.primary:hover { background: var(--blue-bg); }
+  .btn-group { display: flex; gap: 5px; flex-wrap: wrap; }
+
+  /* ── inline edit ── */
+  .inline-edit {
+    display: flex; flex-direction: column; gap: 7px;
+    background: var(--bg); border: 0.5px solid var(--border);
+    border-radius: 8px; padding: 12px; margin-top: 4px;
+  }
+  .ie-row { display: flex; gap: 7px; }
+  .ie-input {
+    width: 100%; font-size: 12px; padding: 6px 9px;
+    border: 0.5px solid var(--border2); border-radius: 7px;
+    background: var(--surface); color: var(--text);
+    font-family: inherit; outline: none; transition: border-color .15s;
+  }
+  .ie-input:focus { border-color: var(--blue-mid); box-shadow: 0 0 0 2px var(--blue-bg); }
+  .ie-actions { display: flex; gap: 7px; justify-content: flex-end; }
+  .ie-label   { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+  .ie-via-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .ie-via-btn {
+    padding: 3px 10px; border-radius: 20px; font-size: 11px; cursor: pointer;
+    border: 0.5px solid var(--border); background: var(--bg);
+    color: var(--muted); font-family: inherit; transition: all .15s;
+  }
+  .ie-via-btn:hover { border-color: var(--border2); }
+  .ie-via-btn.sel-temu   { background: var(--purple-bg); color: var(--purple); border-color: #afa9ec; }
+  .ie-via-btn.sel-mynova { background: var(--blue-bg);   color: var(--blue);   border-color: var(--blue-mid); }
+  .ie-via-btn.sel-manual { background: var(--gray-bg);   color: var(--gray);   border-color: var(--border2); }
+
+  .btn-cancel {
+    padding: 5px 13px; font-size: 12px; border-radius: 7px;
+    border: 0.5px solid var(--border); background: transparent;
+    color: var(--muted); cursor: pointer; font-family: inherit;
+  }
+  .btn-cancel:hover { background: var(--bg); }
+  .btn-save {
+    padding: 5px 13px; font-size: 12px; border-radius: 7px;
+    border: 0.5px solid var(--blue-mid); background: var(--blue-bg);
+    color: var(--blue); cursor: pointer; font-weight: 500; font-family: inherit;
+  }
+  .btn-save:hover { background: var(--blue-mid); }
+  .btn-confirm {
+    padding: 5px 13px; font-size: 12px; border-radius: 7px;
+    border: 0.5px solid #f0a0a0; background: var(--red-bg);
+    color: var(--red); cursor: pointer; font-weight: 500; font-family: inherit;
+  }
+  .btn-confirm:hover { background: #f7c5c5; }
+
+  /* ── modal ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.28); align-items: center;
+    justify-content: center; z-index: 200;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: 12px; padding: 22px 24px; width: 340px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.12);
+  }
+  .modal h3  { font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+  .modal p   { font-size: 12px; color: var(--muted); margin-bottom: 16px; line-height: 1.55; }
+  .modal label { font-size: 11px; color: var(--muted); display: block; margin-bottom: 4px; font-weight: 500; }
+  .modal select, .modal textarea {
+    width: 100%; font-size: 12px; padding: 7px 9px;
+    border: 0.5px solid var(--border2); border-radius: 7px;
+    background: var(--surface); color: var(--text);
+    margin-bottom: 13px; font-family: inherit; outline: none;
+  }
+  .modal select:focus, .modal textarea:focus { border-color: var(--blue-mid); }
+  .modal textarea { resize: none; height: 60px; }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+  /* ── legend ── */
+  .legend {
+    margin-top: 20px; padding: 12px 14px;
+    background: var(--bg); border-radius: 8px; border: 0.5px solid var(--border);
+  }
+  .legend-title { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 10px; }
+  .legend-grid  { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 20px; }
+  .legend-row   { display: flex; align-items: flex-start; gap: 7px; font-size: 11px; color: var(--muted); line-height: 1.45; }
+  .legend-row .chip, .legend-row .via-badge { flex-shrink: 0; margin-top: 1px; }
+  .legend-divider { grid-column: 1/3; height: 0.5px; background: var(--border); margin: 4px 0; }
+</style>
+</head>
+<body>
+
+<div style="max-width:960px;margin:0 auto 14px;display:flex;align-items:center;justify-content:space-between">
+  <div style="font-size:11px;color:var(--hint);font-weight:500;letter-spacing:.05em;text-transform:uppercase">Cargos · Workplace · Favorite warehouse</div>
+  <div style="font-size:11px;color:var(--hint)">Прототип v4</div>
+</div>
+
+<div class="shell">
+  <div class="nav">
+    <div class="nav-tab">Tracking</div>
+    <div class="nav-tab">Documents</div>
+    <div class="nav-tab active">Workplace</div>
+    <div class="nav-tab">Analytics</div>
+    <div class="nav-tab">Application</div>
+    <div class="nav-tab">Reports</div>
+  </div>
+
+  <div class="body">
+    <div class="sidebar">
+      <div class="sidebar-row active">
+        <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1"/><line x1="4" y1="5" x2="10" y2="5" stroke="currentColor" stroke-width="1"/><line x1="4" y1="7.5" x2="10" y2="7.5" stroke="currentColor" stroke-width="1"/><line x1="4" y1="10" x2="7" y2="10" stroke="currentColor" stroke-width="1"/></svg>
+        380673735833
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="sub-nav">
+        <div class="sub-tab">Summary</div>
+        <div class="sub-tab active">Favorite warehouse</div>
+        <div class="sub-tab">IEW</div>
+      </div>
+
+      <div class="content">
+        <div class="ctabs">
+          <div class="ctab active" id="ctab-ua" onclick="setCountry('ua',this)">Ukraine <span class="ctab-x">×</span></div>
+          <div class="ctab" id="ctab-pl" onclick="setCountry('pl',this)">Poland <span class="ctab-x">×</span></div>
+          <div class="ctab-add">+</div>
+        </div>
+
+        <div class="sc-bar">
+          <span class="sc-label">Сценарій:</span>
+          <button class="sc-btn on"  onclick="setScenario('base',this)">Базовий</button>
+          <button class="sc-btn"     onclick="setScenario('via_temu',this)">Cargos via Temu</button>
+          <button class="sc-btn"     onclick="setScenario('npu_app',this)">Додаток НПУ заповнений</button>
+          <button class="sc-btn"     onclick="setScenario('npu_app_partial',this)">Додаток НПУ частково</button>
+          <button class="sc-btn"     onclick="setScenario('rec_off',this)">Рекомендацію вимкнено</button>
+        </div>
+
+        <div id="table-wrap"></div>
+
+        <div class="legend">
+          <div class="legend-title">Джерела та позначки</div>
+          <div class="legend-grid">
+            <div class="legend-row"><span class="chip chip-npu" id="leg-rec">NPU recommended</span><span>Системна рекомендація підрядника. Лише вимкнути.</span></div>
+            <div class="legend-row"><span class="chip chip-cargos">Cargos</span><span>Явний вибір клієнта. Оператор може створити, редагувати або видалити.</span></div>
+            <div class="legend-row"><span class="chip chip-npu-app">Додаток НПУ</span><span>До 4 записів з додатку НПУ. Лише вимкнути — дані не редагуємо.</span></div>
+            <div class="legend-row"><span class="chip chip-legacy">Legacy</span><span>Дані зі старої системи. Лише вимкнути.</span></div>
+            <div class="legend-divider"></div>
+            <div class="legend-row"><span class="via-badge via-temu">via Temu link</span><span>Запис потрапив до Cargos через лінк переадресації від Temu.</span></div>
+            <div class="legend-row"><span class="via-badge via-mynova">via my.nova.global</span><span>Запис потрапив до Cargos з my.nova.global.</span></div>
+            <div class="legend-row" style="grid-column:1/3"><span class="via-badge via-manual">via оператор</span><span>Запис створено або відредаговано вручну оператором.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h3>Вимкнути джерело</h3>
+    <p id="modal-desc"></p>
+    <label>Причина</label>
+    <select id="modal-reason">
+      <option value="">Оберіть причину...</option>
+      <option>Скарга клієнта — відділення не існує</option>
+      <option>Скарга клієнта — незручне відділення</option>
+      <option>Відділення закрите</option>
+      <option>Дані застарілі</option>
+      <option>Інше</option>
+    </select>
+    <label>Коментар (необов'язково)</label>
+    <textarea id="modal-comment" placeholder="Деталі..."></textarea>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Скасувати</button>
+      <button class="btn-confirm" onclick="confirmDisable()">Вимкнути</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── carrier config per country ── */
+const CARRIER = {
+  ua: { recLabel:'NPU recommended', recChip:'chip-npu',    appLabel:'Додаток НПУ' },
+  pl: { recLabel:'InPost recommended', recChip:'chip-inpost', appLabel:null },
+};
+
+const VIA_LABEL = { temu:'via Temu link', mynova:'via my.nova.global', manual:'via оператор' };
+const VIA_CLS   = { temu:'via-temu', mynova:'via-mynova', manual:'via-manual' };
+
+/* NPU app subtype definitions */
+const NPU_APP_SUBTYPES = [
+  { key:'fav_branch',   label:'Улюблене відділення' },
+  { key:'fav_locker',   label:'Улюблений поштомат' },
+  { key:'spare_branch', label:'Резервне відділення' },
+  { key:'spare_locker', label:'Резервний поштомат' },
+];
+
+/* ── scenario data ── */
+const SCENARIOS = {
+  ua: {
+    base: {
+      cargos:  { data:null, date:null, via:null },
+      rec:     { data:{ city:'Lysynychi (Lvivska Obl.)', num:'1', name:'Viddilennia №1: vul. Trakt Hlynianskyi, 1B' }, date:'07.04.2026 14:23' },
+      npu_app: { date:null, subtypes:{ fav_branch:null, fav_locker:null, spare_branch:null, spare_locker:null } },
+      legacy:  { data:{ city:'Lysynychi (Lvivska Obl.)', num:'1', name:'Viddilennia №1: vul. Trakt Hlynianskyi, 1B' }, date:'12.01.2025 08:00' },
+    },
+    via_temu: {
+      cargos:  { data:{ city:'Lviv', num:'23', name:'Viddilennia №23: vul. Horodotska, 214' }, date:'09.04.2026 10:47', via:'temu' },
+      rec:     { data:{ city:'Lysynychi (Lvivska Obl.)', num:'1', name:'Viddilennia №1: vul. Trakt Hlynianskyi, 1B' }, date:'07.04.2026 14:23' },
+      npu_app: { date:null, subtypes:{ fav_branch:null, fav_locker:null, spare_branch:null, spare_locker:null } },
+      legacy:  { data:{ city:'Lysynychi (Lvivska Obl.)', num:'1', name:'Viddilennia №1: vul. Trakt Hlynianskyi, 1B' }, date:'12.01.2025 08:00' },
+    },
+    npu_app: {
+      cargos:  { data:null, date:null, via:null },
+      rec:     { data:{ city:'Lysynychi (Lvivska Obl.)', num:'1', name:'Viddilennia №1: vul. Trakt Hlynianskyi, 1B' }, date:'07.04.2026 14:23' },
+      npu_app: {
+        date:'08.04.2026 17:55',
+        subtypes:{
+          fav_branch:   { name:'Viddilennia №23: vul. Horodotska, 214',       city:'Lviv',   num:'23' },
+          fav_locker:   { name:'Poshtоmat №4501: vul. Lychakivska, 12',       city:'Lviv',   num:'4501' },
+          spare_branch: { name:'Viddilennia №7: vul. Lychakivska, 52',        city:'Lviv',   num:'7' },
+          spare_locker: { name:'Poshtоmat №4502: vul. Sakharova, 42',         city:'Lviv',   num:'4502' },
+        }
+      },
+      legacy: { data:{ city:'Lysynychi (Lvivska Obl.)', num:'1', name:'Viddilennia №1: vul. Trakt Hlynianskyi, 1B' }, date:'12.01.2025 08:00' },
+    },
+    npu_app_partial: {
+      cargos:  { data:null, date:null, via:null },
+      rec:     { data:{ city:'Lysynychi (Lvivska Obl.)', num:'1', name:'Viddilennia №1: vul. Trakt Hlynianskyi, 1B' }, date:'07.04.2026 14:23' },
+      npu_app: {
+        date:'06.04.2026 09:10',
+        subtypes:{
+          fav_branch:   { name:'Viddilennia №23: vul. Horodotska, 214', city:'Lviv', num:'23' },
+          fav_locker:   null,
+          spare_branch: null,
+          spare_locker: null,
+        }
+      },
+      legacy: { data:{ city:'Lysynychi (Lvivska Obl.)', num:'1', name:'Viddilennia №1: vul. Trakt Hlynianskyi, 1B' }, date:'12.01.2025 08:00' },
+    },
+    rec_off: {
+      cargos:  { data:null, date:null, via:null },
+      rec:     { data:{ city:'Lysynychi (Lvivska Obl.)', num:'1', name:'Viddilennia №1: vul. Trakt Hlynianskyi, 1B' }, date:'07.04.2026 14:23', preDisabled:true, preReason:'Скарга клієнта — відділення не існує', preAt:'10.04.2026 09:15' },
+      npu_app: { date:null, subtypes:{ fav_branch:null, fav_locker:null, spare_branch:null, spare_locker:null } },
+      legacy:  { data:{ city:'Lysynychi (Lvivska Obl.)', num:'1', name:'Viddilennia №1: vul. Trakt Hlynianskyi, 1B' }, date:'12.01.2025 08:00' },
+    },
+  },
+  pl: {
+    base: {
+      cargos:  { data:null, date:null, via:null },
+      rec:     { data:null, date:null },
+      npu_app: null,
+      legacy:  { data:null, date:null },
+    },
+    via_temu: {
+      cargos:  { data:{ city:'Kraków', num:'KRK-089', name:'InPost Kraków: ul. Pawia 5' }, date:'09.04.2026 11:20', via:'temu' },
+      rec:     { data:null, date:null },
+      npu_app: null,
+      legacy:  { data:null, date:null },
+    },
+    npu_app: {
+      cargos:  { data:null, date:null, via:null },
+      rec:     { data:{ city:'Kraków', num:'KRK-089', name:'InPost Kraków: ul. Pawia 5' }, date:'05.04.2026 09:00' },
+      npu_app: null,
+      legacy:  { data:null, date:null },
+    },
+    npu_app_partial: {
+      cargos:  { data:{ city:'Kraków', num:'KRK-089', name:'InPost Kraków: ul. Pawia 5' }, date:'15.03.2026 10:00', via:'manual' },
+      rec:     { data:null, date:null },
+      npu_app: null,
+      legacy:  { data:null, date:null },
+    },
+    rec_off: {
+      cargos:  { data:null, date:null, via:null },
+      rec:     { data:{ city:'Kraków', num:'KRK-089', name:'InPost Kraków: ul. Pawia 5' }, date:'05.04.2026 09:00', preDisabled:true, preReason:'Скарга клієнта — незручне відділення', preAt:'10.04.2026 11:00' },
+      npu_app: null,
+      legacy:  { data:null, date:null },
+    },
+  },
+};
+
+/* ── state ── */
+let curCountry  = 'ua';
+let curScenario = 'base';
+let pendingKey  = null;
+let appExpanded = false;
+const overrides = {};
+
+function getOv(key) {
+  if (!overrides[key]) overrides[key] = { disabled:false, reason:'', disabledAt:'', customData:undefined, customDate:undefined, customVia:undefined };
+  return overrides[key];
+}
+function resetOv() { for (const k in overrides) delete overrides[k]; appExpanded = false; }
+function nowStr() {
+  return new Date().toLocaleString('uk-UA',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}).replace(',','');
+}
+
+function getSrc(key) {
+  const ov   = getOv(key);
+  const base = SCENARIOS[curCountry][curScenario][key];
+  if (!base) return null;
+  const data = ov.customData !== undefined ? ov.customData : base.data;
+  const date = ov.customDate !== undefined ? ov.customDate : base.date;
+  const via  = ov.customVia  !== undefined ? ov.customVia  : (base.via || null);
+  let disabled = ov.disabled, reason = ov.reason, disabledAt = ov.disabledAt;
+  if (base.preDisabled && !ov._overrideEnabled) { disabled=true; reason=base.preReason||''; disabledAt=base.preAt||''; }
+  return { data, date, via, disabled, reason, disabledAt };
+}
+
+/* ── render ── */
+function render() {
+  const carrier = CARRIER[curCountry];
+
+  /* update legend chip label */
+  const legRec = document.getElementById('leg-rec');
+  if (legRec) { legRec.textContent = carrier.recLabel; legRec.className = 'chip ' + carrier.recChip; }
+
+  let html = `<table><thead><tr>
+    <th style="width:210px">Source</th>
+    <th>Warehouse</th>
+    <th style="width:118px">Date</th>
+    <th style="width:160px">Action</th>
+  </tr></thead><tbody>`;
+
+  html += groupHdr('Явний вибір клієнта');
+  html += buildCargoRow();
+
+  html += groupHdr('Системна рекомендація');
+  html += buildRecRow(carrier);
+  if (carrier.appLabel) html += buildAppRow(carrier);
+  html += buildLegacyRow();
+
+  html += `</tbody></table>`;
+  document.getElementById('table-wrap').innerHTML = html;
+}
+
+function groupHdr(label) {
+  return `<tr><td colspan="4" style="padding:0;border-bottom:none">
+    <div class="group-header"><div class="group-label">${label}</div><div class="group-line"></div></div>
+  </td></tr>`;
+}
+
+/* Cargos row */
+function buildCargoRow() {
+  const s = getSrc('cargos');
+  if (!s) return '';
+  const faded = (!s.data || s.disabled) ? ' faded' : '';
+  let srcHtml = `<span class="chip chip-cargos">Cargos</span>`;
+  if (s.data && s.via) srcHtml += `<span class="via-badge ${VIA_CLS[s.via]}">${VIA_LABEL[s.via]}</span>`;
+
+  let whHtml;
+  const ov = getOv('cargos');
+  if (ov._editing) {
+    whHtml = '';
+  } else if (!s.data) {
+    whHtml = '<span class="wh-empty">No data</span>';
+  } else {
+    const dim = s.disabled ? 'opacity:.4' : '';
+    whHtml = `<div style="${dim}"><div class="wh-name">${s.data.name}</div><div class="wh-sub">${s.data.city} · №${s.data.num}</div></div>`;
+    if (s.disabled) {
+      whHtml += `<div class="dis-badge">⚠ Вимкнено</div>`;
+      if (s.reason) whHtml += `<div class="dis-reason">${s.reason}</div>`;
+      if (s.disabledAt) whHtml += `<div class="dis-at">${s.disabledAt}</div>`;
+    }
+  }
+
+  const dateHtml = s.date ? `<span class="date-val" style="${s.disabled?'opacity:.4':''}">${s.date}</span>` : '<span class="date-empty">—</span>';
+
+  let actionHtml = '';
+  if (!ov._editing) {
+    if (s.data) {
+      actionHtml = `<div class="btn-group">
+        <button class="action-btn primary" onclick="startEdit()">✎ Редагувати</button>
+        <button class="action-btn danger"  onclick="deleteCargos()">× Видалити</button>
+      </div>`;
+    } else {
+      actionHtml = `<button class="action-btn primary" onclick="startEdit()">+ Додати</button>`;
+    }
+  }
+
+  let rows = `<tr class="${faded}"><td>${srcHtml}</td><td>${whHtml}</td><td>${dateHtml}</td><td>${actionHtml}</td></tr>`;
+
+  if (ov._editing) {
+    const draft = ov._draft || { city:'', num:'', name:'' };
+    const selVia = ov._draftVia || 'manual';
+    rows += `<tr><td colspan="4"><div class="inline-edit">
+      <div class="ie-row">
+        <input class="ie-input" id="ie-city" placeholder="City"  value="${esc(draft.city)}" style="flex:1">
+        <input class="ie-input" id="ie-num"  placeholder="№"     value="${esc(draft.num)}"  style="max-width:80px">
+      </div>
+      <input class="ie-input" id="ie-name" placeholder="Warehouse name" value="${esc(draft.name)}">
+      <div>
+        <div class="ie-label">Як потрапило в Cargos</div>
+        <div class="ie-via-row">
+          <button class="ie-via-btn ${selVia==='temu'   ?'sel-temu':''}"   onclick="setVia('temu')">via Temu link</button>
+          <button class="ie-via-btn ${selVia==='mynova' ?'sel-mynova':''}" onclick="setVia('mynova')">via my.nova.global</button>
+          <button class="ie-via-btn ${selVia==='manual' ?'sel-manual':''}" onclick="setVia('manual')">via оператор</button>
+        </div>
+      </div>
+      <div class="ie-actions">
+        <button class="btn-cancel" onclick="cancelEdit()">Скасувати</button>
+        <button class="btn-save"   onclick="saveEdit()">Зберегти</button>
+      </div>
+    </div></td></tr>`;
+  }
+  return rows;
+}
+
+/* Recommended (NPU / InPost) row */
+function buildRecRow(carrier) {
+  const s = getSrc('rec');
+  if (!s) return '';
+  const faded = (!s.data || s.disabled) ? ' faded' : '';
+  const srcHtml = `<span class="chip ${carrier.recChip}">${carrier.recLabel}</span>`;
+
+  let whHtml;
+  if (!s.data) {
+    whHtml = '<span class="wh-empty">No data</span>';
+  } else {
+    const dim = s.disabled ? 'opacity:.4' : '';
+    whHtml = `<div style="${dim}"><div class="wh-name">${s.data.name}</div><div class="wh-sub">${s.data.city} · №${s.data.num}</div></div>`;
+    if (s.disabled) {
+      whHtml += `<div class="dis-badge">⚠ Вимкнено</div>`;
+      if (s.reason) whHtml += `<div class="dis-reason">${s.reason}</div>`;
+      if (s.disabledAt) whHtml += `<div class="dis-at">${s.disabledAt}</div>`;
+    }
+  }
+  const dateHtml = s.date ? `<span class="date-val" style="${s.disabled?'opacity:.4':''}">${s.date}</span>` : '<span class="date-empty">—</span>';
+  let actionHtml = '';
+  if (s.data) {
+    actionHtml = s.disabled
+      ? `<button class="action-btn success" onclick="enableSrc('rec')">✓ Увімкнути</button>`
+      : `<button class="action-btn danger"  onclick="openModal('rec','${carrier.recLabel}')">⚠ Вимкнути</button>`;
+  }
+  return `<tr class="${faded}"><td>${srcHtml}</td><td>${whHtml}</td><td>${dateHtml}</td><td>${actionHtml}</td></tr>`;
+}
+
+/* NPU App row — expandable */
+function buildAppRow(carrier) {
+  const base = SCENARIOS[curCountry][curScenario].npu_app;
+  if (!base) return '';
+
+  const ov = getOv('npu_app');
+  const disabled   = ov.disabled;
+  const disReason  = ov.reason;
+  const disAt      = ov.disabledAt;
+  const date       = base.date;
+  const subtypes   = base.subtypes;
+
+  /* count how many subtypes have data */
+  const filledCount = Object.values(subtypes).filter(Boolean).length;
+  const hasAny = filledCount > 0;
+  const faded = (!hasAny || disabled) ? ' faded' : '';
+
+  /* summary text for collapsed state */
+  const summaryText = hasAny
+    ? `${filledCount} з 4 типів заповнено`
+    : 'No data';
+
+  const arrowCls = appExpanded ? 'expand-arrow open' : 'expand-arrow';
+  const toggleId = 'app-toggle';
+
+  let srcHtml = `<span class="chip chip-npu-app">Додаток НПУ</span>`;
+
+  let whHtml;
+  if (!hasAny) {
+    whHtml = '<span class="wh-empty">No data</span>';
+  } else {
+    const dim = disabled ? 'opacity:.4' : '';
+    whHtml = `<div style="${dim}">
+      <div class="expand-toggle" onclick="toggleApp()">
+        <span class="expand-arrow ${appExpanded?'open':''}" id="app-arrow">▶</span>
+        <span>${summaryText}</span>
+      </div>`;
+
+    if (appExpanded) {
+      whHtml += `<div class="npu-app-subtypes">`;
+      for (const st of NPU_APP_SUBTYPES) {
+        const d = subtypes[st.key];
+        whHtml += `<div class="subtype-row${d?' has-data':''}">
+          <div class="subtype-label">${st.label}</div>
+          ${d
+            ? `<div><div class="subtype-val">${d.name}</div><div class="subtype-val" style="color:var(--muted)">${d.city} · №${d.num}</div></div>`
+            : `<span class="subtype-empty">не вказано</span>`
+          }
+        </div>`;
+      }
+      whHtml += `</div>`;
+    }
+
+    whHtml += `</div>`;
+
+    if (disabled) {
+      whHtml += `<div class="dis-badge">⚠ Вимкнено</div>`;
+      if (disReason) whHtml += `<div class="dis-reason">${disReason}</div>`;
+      if (disAt)     whHtml += `<div class="dis-at">${disAt}</div>`;
+    }
+  }
+
+  const dateHtml = date ? `<span class="date-val" style="${disabled?'opacity:.4':''}">${date}</span>` : '<span class="date-empty">—</span>';
+
+  let actionHtml = '';
+  if (hasAny) {
+    actionHtml = disabled
+      ? `<button class="action-btn success" onclick="enableSrc('npu_app')">✓ Увімкнути</button>`
+      : `<button class="action-btn danger"  onclick="openModal('npu_app','Додаток НПУ')">⚠ Вимкнути</button>`;
+  }
+
+  return `<tr class="${faded}"><td>${srcHtml}</td><td>${whHtml}</td><td>${dateHtml}</td><td>${actionHtml}</td></tr>`;
+}
+
+/* Legacy row */
+function buildLegacyRow() {
+  const s = getSrc('legacy');
+  if (!s) return '';
+  const faded = (!s.data || s.disabled) ? ' faded' : '';
+  let whHtml;
+  if (!s.data) {
+    whHtml = '<span class="wh-empty">No data</span>';
+  } else {
+    const dim = s.disabled ? 'opacity:.4' : '';
+    whHtml = `<div style="${dim}"><div class="wh-name">${s.data.name}</div><div class="wh-sub">${s.data.city} · №${s.data.num}</div></div>`;
+    if (s.disabled) {
+      whHtml += `<div class="dis-badge">⚠ Вимкнено</div>`;
+      if (s.reason) whHtml += `<div class="dis-reason">${s.reason}</div>`;
+      if (s.disabledAt) whHtml += `<div class="dis-at">${s.disabledAt}</div>`;
+    }
+  }
+  const dateHtml = s.date ? `<span class="date-val" style="${s.disabled?'opacity:.4':''}">${s.date}</span>` : '<span class="date-empty">—</span>';
+  let actionHtml = '';
+  if (s.data) {
+    actionHtml = s.disabled
+      ? `<button class="action-btn success" onclick="enableSrc('legacy')">✓ Увімкнути</button>`
+      : `<button class="action-btn danger"  onclick="openModal('legacy','Legacy')">⚠ Вимкнути</button>`;
+  }
+  return `<tr class="${faded}"><td><span class="chip chip-legacy">Legacy</span></td><td>${whHtml}</td><td>${dateHtml}</td><td>${actionHtml}</td></tr>`;
+}
+
+/* ── helpers ── */
+function esc(s) { return (s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+function toggleApp() { appExpanded = !appExpanded; render(); }
+
+/* ── controls ── */
+function setCountry(c, el) {
+  curCountry = c; resetOv();
+  document.querySelectorAll('.ctab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active'); render();
+}
+function setScenario(s, el) {
+  curScenario = s; resetOv();
+  document.querySelectorAll('.sc-btn').forEach(b => b.classList.remove('on'));
+  el.classList.add('on'); render();
+}
+
+/* modal */
+function openModal(key, label) {
+  pendingKey = key;
+  document.getElementById('modal-desc').textContent = `Джерело «${label}» буде вимкнено. Дані залишаться в системі для аналітики.`;
+  document.getElementById('modal-reason').value = '';
+  document.getElementById('modal-comment').value = '';
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal() { document.getElementById('modal').classList.remove('open'); pendingKey = null; }
+function confirmDisable() {
+  if (!pendingKey) return;
+  const reason  = document.getElementById('modal-reason').value;
+  const comment = document.getElementById('modal-comment').value;
+  const ov = getOv(pendingKey);
+  ov.disabled   = true;
+  ov.reason     = (reason + (comment ? ' — ' + comment : '')).trim();
+  ov.disabledAt = 'Вимкнено: ' + nowStr();
+  closeModal(); render();
+}
+function enableSrc(key) {
+  const ov = getOv(key);
+  ov.disabled = false; ov.reason = ''; ov.disabledAt = '';
+  ov._overrideEnabled = true;
+  render();
+}
+
+/* cargos edit */
+function startEdit() {
+  const ov   = getOv('cargos');
+  const base = SCENARIOS[curCountry][curScenario].cargos;
+  const data = ov.customData !== undefined ? ov.customData : base.data;
+  const via  = ov.customVia  !== undefined ? ov.customVia  : (base.via || 'manual');
+  ov._editing = true; ov._draft = data ? {...data} : {city:'',num:'',name:''}; ov._draftVia = via;
+  render();
+  setTimeout(() => { const el = document.getElementById('ie-city'); if (el) el.focus(); }, 30);
+}
+function cancelEdit() { getOv('cargos')._editing = false; render(); }
+function setVia(v) {
+  getOv('cargos')._draftVia = v;
+  document.querySelectorAll('.ie-via-btn').forEach(b => {
+    b.className = 'ie-via-btn';
+    const fn = b.getAttribute('onclick');
+    if (fn.includes("'temu'")   && v==='temu')   b.className += ' sel-temu';
+    if (fn.includes("'mynova'") && v==='mynova') b.className += ' sel-mynova';
+    if (fn.includes("'manual'") && v==='manual') b.className += ' sel-manual';
+  });
+}
+function saveEdit() {
+  const city = document.getElementById('ie-city').value.trim();
+  const num  = document.getElementById('ie-num').value.trim();
+  const name = document.getElementById('ie-name').value.trim();
+  if (!city || !name) return;
+  const ov = getOv('cargos');
+  ov.customData = {city, num, name}; ov.customDate = nowStr();
+  ov.customVia = ov._draftVia || 'manual'; ov._editing = false;
+  render();
+}
+function deleteCargos() {
+  if (!confirm('Видалити запис Cargos?')) return;
+  const ov = getOv('cargos');
+  ov.customData = null; ov.customDate = null; ov.customVia = null;
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
