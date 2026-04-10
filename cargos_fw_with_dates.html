@@ -1,0 +1,281 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.app{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;font-size:13px}
+.tabs-top{display:flex;border-bottom:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);padding:0 12px}
+.tab-top{padding:10px 16px;font-size:13px;color:var(--color-text-secondary);border-bottom:2px solid transparent;white-space:nowrap}
+.tab-top.active{color:var(--color-text-info);border-bottom-color:var(--color-border-info)}
+.content{display:flex;min-height:540px}
+.sidebar{width:200px;border-right:0.5px solid var(--color-border-tertiary);padding:8px 0;background:var(--color-background-secondary)}
+.sidebar-item{padding:8px 16px;font-size:12px;color:var(--color-text-secondary);display:flex;align-items:center;gap:6px}
+.sidebar-item.active{background:var(--color-background-primary);color:var(--color-text-primary)}
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.sub-tabs{display:flex;border-bottom:0.5px solid var(--color-border-tertiary);padding:0 16px;background:var(--color-background-primary)}
+.sub-tab{padding:8px 14px;font-size:13px;color:var(--color-text-secondary);border-bottom:2px solid transparent;cursor:pointer}
+.sub-tab.active{color:var(--color-text-info);border-bottom-color:var(--color-border-info)}
+.fw-content{padding:16px;flex:1}
+.country-tabs{display:flex;align-items:center;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:16px}
+.ctab{padding:6px 14px;font-size:12px;cursor:pointer;color:var(--color-text-secondary);border-bottom:2px solid transparent;display:flex;align-items:center;gap:5px}
+.ctab.active{color:var(--color-text-info);border-bottom-color:var(--color-border-info);font-weight:500}
+.ctab-add{padding:6px 10px;color:var(--color-text-tertiary);cursor:pointer;font-size:16px;line-height:1}
+
+table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+thead tr{background:var(--color-background-secondary)}
+th{padding:7px 10px;text-align:left;font-weight:500;color:var(--color-text-secondary);font-size:11px;border-bottom:0.5px solid var(--color-border-tertiary);white-space:nowrap}
+td{padding:9px 10px;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary);vertical-align:top}
+tr:last-child td{border-bottom:none}
+
+.src-chip{display:inline-flex;padding:2px 7px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
+.chip-npu{background:#FAEEDA;color:#633806}
+.chip-temu{background:#EEEDFE;color:#3C3489}
+.chip-cargos{background:#E1F5EE;color:#085041}
+.chip-mynova{background:#E6F1FB;color:#0C447C}
+.chip-legacy{background:#F1EFE8;color:#444441}
+
+.name-cell{font-size:12px;line-height:1.4;color:var(--color-text-primary)}
+.sub-cell{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.empty-cell{font-size:11px;color:var(--color-text-tertiary);font-style:italic}
+.date-cell{font-size:11px;color:var(--color-text-secondary);white-space:nowrap}
+.date-empty{font-size:11px;color:var(--color-text-tertiary);font-style:italic}
+
+.disabled-badge{display:inline-flex;align-items:center;gap:3px;padding:1px 6px;border-radius:20px;font-size:11px;background:var(--color-background-warning);color:var(--color-text-warning);margin-top:4px}
+.disabled-reason{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.dimmed{opacity:0.4}
+
+.action-btn{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:var(--border-radius-md);font-size:11px;cursor:pointer;border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary)}
+.action-btn:hover{background:var(--color-background-secondary)}
+.action-btn.danger{border-color:var(--color-border-danger);color:var(--color-text-danger)}
+.action-btn.danger:hover{background:var(--color-background-danger)}
+.action-btn.success{border-color:var(--color-border-success);color:var(--color-text-success)}
+.action-btn.primary{border-color:var(--color-border-info);color:var(--color-text-info)}
+.action-btn.primary:hover{background:var(--color-background-info)}
+.btn-group{display:flex;gap:6px;flex-wrap:wrap}
+
+.inline-edit{display:flex;flex-direction:column;gap:6px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px}
+.inline-edit input{font-size:12px;padding:5px 8px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);width:100%}
+.inline-edit-row{display:flex;gap:6px}
+.inline-edit-row input{flex:1}
+.ie-actions{display:flex;gap:6px;justify-content:flex-end}
+.btn-cancel{padding:5px 12px;font-size:12px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);cursor:pointer}
+.btn-save{padding:5px 12px;font-size:12px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-info);background:var(--color-background-info);color:var(--color-text-info);cursor:pointer;font-weight:500}
+.btn-confirm{padding:5px 12px;font-size:12px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-danger);background:var(--color-background-danger);color:var(--color-text-danger);cursor:pointer;font-weight:500}
+
+.modal-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.32);display:flex;align-items:center;justify-content:center;z-index:10;border-radius:var(--border-radius-lg)}
+.modal{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:20px;width:320px}
+.modal h3{font-size:14px;font-weight:500;margin-bottom:6px}
+.modal p{font-size:12px;color:var(--color-text-secondary);margin-bottom:14px;line-height:1.5}
+.modal label{font-size:12px;color:var(--color-text-secondary);display:block;margin-bottom:4px}
+.modal select,.modal textarea{width:100%;font-size:12px;padding:6px 9px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);margin-bottom:12px}
+.modal textarea{resize:none;height:56px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end}
+.wrap{position:relative}
+</style>
+
+<div class="wrap">
+<div class="app">
+  <div class="tabs-top">
+    <div class="tab-top">Tracking</div>
+    <div class="tab-top">Documents</div>
+    <div class="tab-top active">Workplace</div>
+    <div class="tab-top">Analytics</div>
+    <div class="tab-top">Reports</div>
+  </div>
+  <div class="content">
+    <div class="sidebar">
+      <div class="sidebar-item active">&#9783; 380673735833</div>
+    </div>
+    <div class="main">
+      <div class="sub-tabs">
+        <div class="sub-tab">Summary</div>
+        <div class="sub-tab active">Favorite warehouse</div>
+        <div class="sub-tab">IEW</div>
+      </div>
+      <div class="fw-content">
+        <div class="country-tabs">
+          <div class="ctab active">Ukraine <span style="color:var(--color-text-tertiary);font-size:10px">×</span></div>
+          <div class="ctab-add">+</div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th style="width:132px">Source</th>
+              <th>Warehouse</th>
+              <th style="width:110px">Date</th>
+              <th style="width:150px">Action</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal" style="display:none">
+  <div class="modal">
+    <h3>Вимкнути джерело</h3>
+    <p id="modal-desc"></p>
+    <label>Причина</label>
+    <select id="modal-reason">
+      <option value="">Оберіть причину...</option>
+      <option>Скарга клієнта — відділення не існує</option>
+      <option>Скарга клієнта — незручне відділення</option>
+      <option>Відділення закрите</option>
+      <option>Дані застарілі</option>
+      <option>Інше</option>
+    </select>
+    <label>Коментар (необов'язково)</label>
+    <textarea id="modal-comment" placeholder="Деталі..."></textarea>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Скасувати</button>
+      <button class="btn-confirm" onclick="confirmDisable()">Вимкнути</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+const state = {
+  npu:    {data:{city:'Lysynychi (Lvivska Obl.)',num:'1',name:'Viddilennia №1: vul. Trakt Hlynianskyi, 1B'}, date:'07.04.2026 14:23', disabled:false, reason:'', disabledAt:''},
+  cargos: {data:null, editing:false, draft:{city:'',num:'',name:''}, date:null},
+  temu:   {data:{city:'Lviv',num:'23',name:'Viddilennia №23: vul. Horodotska, 214'}, date:'03.04.2026 09:11', disabled:false, reason:'', disabledAt:''},
+  mynova: {data:null, date:null},
+  legacy: {data:{city:'Lysynychi (Lvivska Obl.)',num:'1',name:'Viddilennia №1: vul. Trakt Hlynianskyi, 1B'}, date:'12.01.2025 08:00', disabled:false, reason:'', disabledAt:''},
+};
+
+const ORDER = ['npu','cargos','temu','mynova','legacy'];
+const CHIP  = {npu:'chip-npu',temu:'chip-temu',cargos:'chip-cargos',mynova:'chip-mynova',legacy:'chip-legacy'};
+const LABEL = {npu:'NPU recommended',temu:'Temu link',cargos:'Cargos',mynova:'my.nova.global',legacy:'Legacy'};
+const READONLY = ['npu','temu','mynova','legacy'];
+
+let pendingDisable = null;
+
+function nowStr(){
+  return new Date().toLocaleString('uk-UA',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}).replace(',','');
+}
+
+function warehouseCell(key){
+  const s = state[key];
+  if(key==='cargos' && s.editing) return '';
+  if(!s.data) return '<span class="empty-cell">No data</span>';
+  const dimClass = s.disabled ? 'dimmed' : '';
+  let html = `<div class="${dimClass}">
+    <div class="name-cell">${s.data.name}</div>
+    <div class="sub-cell">${s.data.city} · №${s.data.num}</div>
+  </div>`;
+  if(s.disabled){
+    html += `<div class="disabled-badge">&#9888; Вимкнено</div>`;
+    if(s.reason) html += `<div class="disabled-reason">${s.reason}</div>`;
+    if(s.disabledAt) html += `<div class="disabled-reason">${s.disabledAt}</div>`;
+  }
+  return html;
+}
+
+function dateCell(key){
+  const s = state[key];
+  if(key==='cargos' && s.editing) return '';
+  if(!s.date) return '<span class="date-empty">—</span>';
+  const dimClass = s.disabled ? 'dimmed' : '';
+  return `<span class="date-cell ${dimClass}">${s.date}</span>`;
+}
+
+function actionCell(key){
+  const s = state[key];
+  if(key==='cargos'){
+    if(s.editing) return '';
+    if(s.data){
+      return `<div class="btn-group">
+        <button class="action-btn primary" onclick="startEdit()">&#9998; Редагувати</button>
+        <button class="action-btn danger" onclick="deleteCargos()">&#215; Видалити</button>
+      </div>`;
+    }
+    return `<button class="action-btn primary" onclick="startEdit()">+ Додати</button>`;
+  }
+  if(!s.data) return '';
+  if(s.disabled){
+    return `<button class="action-btn success" onclick="enableSource('${key}')">&#10003; Увімкнути</button>`;
+  }
+  return `<button class="action-btn danger" onclick="openModal('${key}')">&#9888; Вимкнути</button>`;
+}
+
+function cargosEditRow(){
+  const s = state.cargos;
+  if(!s.editing) return '';
+  return `<tr id="edit-row">
+    <td colspan="4">
+      <div class="inline-edit">
+        <div class="inline-edit-row">
+          <input id="ie-city" placeholder="City" value="${s.draft.city}">
+          <input id="ie-num" placeholder="№" value="${s.draft.num}" style="max-width:80px">
+        </div>
+        <input id="ie-name" placeholder="Warehouse name" value="${s.draft.name}">
+        <div class="ie-actions">
+          <button class="btn-cancel" onclick="cancelEdit()">Скасувати</button>
+          <button class="btn-save" onclick="saveEdit()">Зберегти</button>
+        </div>
+      </div>
+    </td>
+  </tr>`;
+}
+
+function render(){
+  document.getElementById('tbody').innerHTML = ORDER.map(key=>`
+    <tr>
+      <td><span class="src-chip ${CHIP[key]}">${LABEL[key]}</span></td>
+      <td>${warehouseCell(key)}</td>
+      <td>${dateCell(key)}</td>
+      <td>${actionCell(key)}</td>
+    </tr>${key==='cargos'?cargosEditRow():''}`).join('');
+}
+
+function openModal(key){
+  pendingDisable = key;
+  document.getElementById('modal-desc').textContent =
+    `Джерело "${LABEL[key]}" буде вимкнено. Дані залишаться в системі для аналітики якості рекомендацій.`;
+  document.getElementById('modal-reason').value='';
+  document.getElementById('modal-comment').value='';
+  document.getElementById('modal').style.display='flex';
+}
+function closeModal(){document.getElementById('modal').style.display='none';pendingDisable=null;}
+function confirmDisable(){
+  if(!pendingDisable) return;
+  const reason = document.getElementById('modal-reason').value;
+  const comment = document.getElementById('modal-comment').value;
+  const s = state[pendingDisable];
+  s.disabled=true;
+  s.reason=(reason+(comment?' — '+comment:'')).trim();
+  s.disabledAt='Вимкнено: '+nowStr();
+  closeModal();
+  render();
+}
+function enableSource(key){
+  state[key].disabled=false;
+  state[key].reason='';
+  state[key].disabledAt='';
+  render();
+}
+function startEdit(){
+  const d=state.cargos.data;
+  state.cargos.editing=true;
+  state.cargos.draft=d?{...d}:{city:'',num:'',name:''};
+  render();
+  setTimeout(()=>{const el=document.getElementById('ie-city');if(el)el.focus();},50);
+}
+function cancelEdit(){state.cargos.editing=false;render();}
+function saveEdit(){
+  const city=document.getElementById('ie-city').value.trim();
+  const num=document.getElementById('ie-num').value.trim();
+  const name=document.getElementById('ie-name').value.trim();
+  if(!city||!name) return;
+  state.cargos.data={city,num,name};
+  state.cargos.date=nowStr();
+  state.cargos.editing=false;
+  render();
+}
+function deleteCargos(){
+  state.cargos.data=null;
+  state.cargos.date=null;
+  render();
+}
+render();
+</script>
