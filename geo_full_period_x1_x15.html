@@ -1,0 +1,159 @@
+
+<style>
+  .wrap { padding: 1rem 0; font-size: 14px; color: var(--color-text-primary); }
+  .legend { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 0.75rem; }
+  .leg-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--color-text-secondary); }
+  .leg-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .stats { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; margin-top: 1.25rem; }
+  .stat { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 0.65rem 0.85rem; }
+  .stat-label { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 3px; }
+  .stat-value { font-size: 18px; font-weight: 500; }
+</style>
+<div class="wrap">
+  <h2 class="sr-only">Графік Geo Not Worked за весь період з порогами ×1 і ×1.5 від ковзного середнього</h2>
+
+  <div class="legend">
+    <div class="leg-item"><div class="leg-dot" style="background:#1D9E75;"></div>Норма</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#EF9F27;"></div>Вище норми (середнє × 1.0)</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#E24B4A;"></div>Критично (середнє × 1.5)</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#888780; border-radius:0; height:2px; width:16px;"></div>Ковзне середнє (14 дн.)</div>
+  </div>
+
+  <div style="position: relative; width: 100%; height: 320px;">
+    <canvas id="chart" role="img" aria-label="Графік Geo Not Worked з січня по квітень 2026 з порогами ×1 і ×1.5 від ковзного середнього">104 дні даних з кольоровим кодуванням аномалій.</canvas>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-label">Всього днів</div><div class="stat-value">104</div></div>
+    <div class="stat"><div class="stat-label">Червоних алертів</div><div class="stat-value" id="s-red" style="color:#E24B4A;"></div></div>
+    <div class="stat"><div class="stat-label">Жовтих попереджень</div><div class="stat-value" id="s-yel" style="color:#BA7517;"></div></div>
+    <div class="stat"><div class="stat-label">Нормальних днів</div><div class="stat-value" id="s-ok" style="color:#1D9E75;"></div></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const raw = [
+  {d:'01.01',v:1578},{d:'02.01',v:1236},{d:'03.01',v:2218},{d:'04.01',v:2236},{d:'05.01',v:1968},
+  {d:'06.01',v:2201},{d:'07.01',v:2520},{d:'08.01',v:1614},{d:'09.01',v:1442},{d:'10.01',v:1765},
+  {d:'11.01',v:1825},{d:'12.01',v:1950},{d:'13.01',v:1899},{d:'14.01',v:1370},{d:'15.01',v:1391},
+  {d:'16.01',v:1347},{d:'17.01',v:1386},{d:'18.01',v:1493},{d:'19.01',v:2254},{d:'20.01',v:1691},
+  {d:'21.01',v:1112},{d:'22.01',v:892},{d:'23.01',v:835},{d:'24.01',v:1280},{d:'25.01',v:1173},
+  {d:'26.01',v:1341},{d:'27.01',v:2169},{d:'28.01',v:1780},{d:'29.01',v:1888},{d:'30.01',v:2107},
+  {d:'31.01',v:1839},{d:'01.02',v:1919},{d:'02.02',v:2092},{d:'03.02',v:2629},{d:'04.02',v:1955},
+  {d:'05.02',v:1595},{d:'06.02',v:1395},{d:'07.02',v:1494},{d:'08.02',v:2539},{d:'09.02',v:2680},
+  {d:'10.02',v:2781},{d:'11.02',v:2335},{d:'12.02',v:2761},{d:'13.02',v:2498},{d:'14.02',v:2218},
+  {d:'15.02',v:2321},{d:'16.02',v:2200},{d:'17.02',v:2187},{d:'18.02',v:2052},{d:'19.02',v:2126},
+  {d:'20.02',v:1776},{d:'21.02',v:1416},{d:'22.02',v:1496},{d:'23.02',v:1823},{d:'24.02',v:2665},
+  {d:'25.02',v:2865},{d:'26.02',v:3059},{d:'27.02',v:3499},{d:'28.02',v:2824},{d:'01.03',v:2862},
+  {d:'02.03',v:2698},{d:'03.03',v:2401},{d:'04.03',v:2193},{d:'05.03',v:1932},{d:'06.03',v:1843},
+  {d:'07.03',v:2032},{d:'08.03',v:2101},{d:'09.03',v:2207},{d:'10.03',v:2230},{d:'11.03',v:2578},
+  {d:'12.03',v:1661},{d:'13.03',v:1431},{d:'14.03',v:1213},{d:'15.03',v:1693},{d:'16.03',v:1827},
+  {d:'17.03',v:2233},{d:'18.03',v:1549},{d:'19.03',v:797},{d:'20.03',v:757},{d:'21.03',v:794},
+  {d:'22.03',v:732},{d:'23.03',v:853},{d:'24.03',v:937},{d:'25.03',v:887},{d:'26.03',v:771},
+  {d:'27.03',v:494},{d:'28.03',v:625},{d:'29.03',v:727},{d:'30.03',v:730},{d:'31.03',v:841},
+  {d:'01.04',v:1021},{d:'02.04',v:863},{d:'03.04',v:819},{d:'04.04',v:787},{d:'05.04',v:732},
+  {d:'06.04',v:690},{d:'07.04',v:774},{d:'08.04',v:752},{d:'09.04',v:732},{d:'10.04',v:788},
+  {d:'11.04',v:630},{d:'12.04',v:584},{d:'13.04',v:1252},{d:'14.04',v:94}
+];
+
+const labels = raw.map(r=>r.d);
+const vals = raw.map(r=>r.v);
+const WINDOW = 14, YT = 1.0, RT = 1.5;
+
+function rollingMean(idx) {
+  const slice = vals.slice(Math.max(0, idx - WINDOW), idx);
+  if (!slice.length) return vals[0];
+  return slice.reduce((a,b)=>a+b,0)/slice.length;
+}
+
+const mavg = vals.map((_,i) => Math.round(rollingMean(i)));
+const ytLine = mavg.map(m => Math.round(m * YT));
+const rtLine = mavg.map(m => Math.round(m * RT));
+
+const ptColors = vals.map((v,i) => {
+  if (v >= rtLine[i]) return '#E24B4A';
+  if (v >= ytLine[i]) return '#EF9F27';
+  return '#1D9E75';
+});
+
+const redCount = ptColors.filter(c=>c==='#E24B4A').length;
+const yelCount = ptColors.filter(c=>c==='#EF9F27').length;
+const okCount  = ptColors.filter(c=>c==='#1D9E75').length;
+
+document.getElementById('s-red').textContent = redCount;
+document.getElementById('s-yel').textContent = yelCount;
+document.getElementById('s-ok').textContent  = okCount;
+
+new Chart(document.getElementById('chart'), {
+  type: 'line',
+  data: {
+    labels,
+    datasets: [
+      {
+        label: 'Червоний поріг',
+        data: rtLine,
+        borderColor: 'rgba(226,75,74,0.4)',
+        borderDash: [5,3],
+        borderWidth: 1.5,
+        pointRadius: 0,
+        fill: false,
+        order: 4
+      },
+      {
+        label: 'Жовтий поріг',
+        data: ytLine,
+        borderColor: 'rgba(239,159,39,0.4)',
+        borderDash: [4,3],
+        borderWidth: 1.5,
+        pointRadius: 0,
+        fill: false,
+        order: 4
+      },
+      {
+        label: 'Ковзне середнє',
+        data: mavg,
+        borderColor: 'rgba(136,135,128,0.55)',
+        borderWidth: 1.5,
+        pointRadius: 0,
+        fill: false,
+        order: 3
+      },
+      {
+        label: 'Geo Not Worked',
+        data: vals,
+        borderColor: 'rgba(55,138,221,0.3)',
+        borderWidth: 1.5,
+        pointRadius: 4,
+        pointBackgroundColor: ptColors,
+        pointBorderColor: ptColors,
+        tension: 0.2,
+        fill: false,
+        order: 1
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: ctx => {
+            if (ctx.datasetIndex !== 3) return null;
+            const i = ctx.dataIndex;
+            const mult = (vals[i]/mavg[i]).toFixed(2);
+            const status = ptColors[i]==='#E24B4A' ? ' — КРИТИЧНО' : ptColors[i]==='#EF9F27' ? ' — УВАГА' : ' — норма';
+            return `${vals[i].toLocaleString('uk-UA')} відпр. (×${mult}${status})`;
+          }
+        }
+      }
+    },
+    scales: {
+      x: { ticks: { autoSkip: true, maxTicksLimit: 13, font:{size:11} }, grid:{color:'rgba(136,135,128,0.1)'} },
+      y: { min: 0, ticks: { font:{size:11}, callback: v => v.toLocaleString('uk-UA') }, grid:{color:'rgba(136,135,128,0.1)'} }
+    }
+  }
+});
+</script>
