@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cargos OS · НПЄ v5.1</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+:root{
+--bg:#F5F6FA;--bg2:#fff;--bg3:#ECEEF5;--surface:#ECEEF5;--surface2:#E2E5EF;
+--border:#DDE1EE;--border2:#C8CEDF;
+--accent:#1A5CFF;--accent-bg:#EBF0FF;--accent-text:#0C3EBB;
+--green:#0D9E6A;--green-bg:#E6F7F1;--green-text:#075A3C;
+--red:#D63B3B;--red-bg:#FEECEC;--red-text:#7A1F1F;
+--warn:#B87500;--warn-bg:#FEF6E6;--warn-text:#6B4200;
+--text:#1A1D2E;--text2:#5A6080;--text3:#8890AA;
+--mono:'JetBrains Mono',monospace;--sans:'Inter',sans-serif;
+--r:8px;--r2:12px;--shadow:0 1px 3px rgba(0,0,0,.06);--shadow-md:0 4px 16px rgba(0,0,0,.10);
+}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;line-height:1.5;display:flex;flex-direction:column}
+.topbar{height:48px;min-height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0}
+.logo{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.08em}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.tb-user{font-size:12px;color:var(--text2)}
+.tb-av{width:28px;height:28px;border-radius:50%;background:var(--accent-bg);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;font-weight:700;color:var(--accent)}
+.nav{display:flex;background:var(--bg2);border-bottom:1.5px solid var(--border);flex-shrink:0}
+.tab{flex:1;padding:10px 4px;text-align:center;font-size:10px;font-weight:500;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:.12s;white-space:nowrap;position:relative}
+.tab.on{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+.tab-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px;vertical-align:middle}
+.tab-badge{display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;border-radius:8px;background:var(--red);color:#fff;font-size:9px;font-weight:700;padding:0 3px;font-family:var(--mono);margin-left:4px}
+.scr{display:none;flex:1;overflow-y:auto;overflow-x:hidden}
+.scr.on{display:flex;flex-direction:column}
+.pill{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
+.pill-blue{background:var(--accent-bg);color:var(--accent-text);border:1px solid #B8CCFF}
+.pill-warn{background:var(--warn-bg);color:var(--warn-text);border:1px solid #F0D090}
+.pill-green{background:var(--green-bg);color:var(--green-text);border:1px solid #9FE0C8}
+.pill-gray{background:var(--surface2);color:var(--text2);border:1px solid var(--border)}
+.pill-red{background:var(--red-bg);color:var(--red-text);border:1px solid #F0B8B8}
+.btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:11px 16px;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;border:none;transition:.12s;font-family:var(--sans);width:100%}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:#1450E0}
+.btn-success{background:var(--green);color:#fff}.btn-success:hover{background:#0A8059}
+.btn-ghost{background:var(--bg2);color:var(--text2);border:1px solid var(--border)}.btn-ghost:hover{background:var(--surface)}
+.btn-sm{padding:7px 12px;font-size:11px;width:auto}
+.btn:disabled{background:var(--surface2);color:var(--text3);cursor:not-allowed;transform:none}
+
+/* SCAN */
+.scan-viewport{margin:14px 14px 0;border:1.5px solid var(--border2);border-radius:var(--r2);background:#E8EBF4;height:200px;position:relative;overflow:hidden;flex-shrink:0}
+.scan-grid-bg{position:absolute;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:36px 36px;opacity:.6}
+.scan-beam{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.5;animation:sbeam 2.5s ease-in-out infinite}
+@keyframes sbeam{0%{top:10%}50%{top:88%}100%{top:10%}}
+.scan-corners span{position:absolute;width:22px;height:22px;border-color:var(--accent);border-style:solid}
+.sc-tl{top:12px;left:12px;border-width:2px 0 0 2px}.sc-tr{top:12px;right:12px;border-width:2px 2px 0 0}
+.sc-bl{bottom:12px;left:12px;border-width:0 0 2px 2px}.sc-br{bottom:12px;right:12px;border-width:0 2px 2px 0}
+.scan-ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;color:var(--text3)}
+.scan-ph-txt{font-size:10px;text-transform:uppercase;letter-spacing:.1em;font-family:var(--mono)}
+.scan-result{position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:6px}
+.scan-result-code{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--red-text)}
+.scan-result-sub{font-size:10px;color:var(--text3)}
+.scan-controls{padding:12px 14px;display:flex;flex-direction:column;gap:8px;flex-shrink:0}
+.scan-field{display:flex;align-items:center;background:var(--bg2);border:1.5px solid var(--border2);border-radius:var(--r);overflow:hidden}
+.scan-field-icon{padding:0 11px;color:var(--text3);flex-shrink:0}
+.scan-field input{flex:1;border:none;outline:none;font-family:var(--mono);font-size:13px;color:var(--text);background:transparent;padding:10px 10px 10px 0}
+.scan-field input::placeholder{color:var(--text3);font-size:11px;font-family:var(--sans)}
+.scan-field:focus-within{border-color:var(--accent)}
+
+/* GROUP SCAN BAR */
+.group-bar{background:var(--accent-bg);border:1.5px solid #B8CCFF;border-radius:var(--r2);margin:10px 14px 0;padding:11px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.gb-icon{width:30px;height:30px;border-radius:8px;background:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.gb-text{flex:1;min-width:0}
+.gb-title{font-size:11px;font-weight:700;color:var(--accent-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gb-sub{font-size:10px;color:var(--accent-text);opacity:.75;margin-top:1px}
+.gb-count{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--accent);flex-shrink:0;min-width:36px;text-align:right}
+.gb-stop{padding:7px 13px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);font-size:11px;font-weight:600;color:var(--text2);cursor:pointer;white-space:nowrap;flex-shrink:0}
+.gb-stop:hover{background:var(--surface)}
+.gb-stop:active{transform:scale(.97)}
+
+/* GROUP FLASH */
+.group-flash{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(1);z-index:400;background:var(--accent);color:#fff;border-radius:var(--r2);padding:16px 24px;display:flex;align-items:center;gap:12px;font-size:15px;font-weight:700;box-shadow:0 8px 32px rgba(26,92,255,.4);pointer-events:none;animation:gflash .22s cubic-bezier(.34,1.2,.64,1)}
+@keyframes gflash{from{opacity:0;transform:translate(-50%,-50%) scale(.8)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+
+/* BLOCKER */
+.blocker-overlay{position:fixed;inset:0;background:rgba(26,29,46,.5);z-index:200;display:flex;align-items:flex-end;backdrop-filter:blur(3px)}
+.blocker-sheet{background:var(--bg2);border-radius:20px 20px 0 0;padding:20px 18px 32px;width:100%;box-shadow:var(--shadow-md);animation:slideUp .28s cubic-bezier(.34,1.1,.64,1)}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.bl-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
+.bl-icon{width:42px;height:42px;border-radius:12px;background:var(--red-bg);border:1.5px solid var(--red);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.bl-title{font-size:18px;font-weight:700;color:var(--text);margin-bottom:2px}
+.bl-sub{font-size:12px;color:var(--text2);line-height:1.5}
+.bl-table{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:12px}
+.bl-row{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid var(--border)}
+.bl-row:last-child{border:none}
+.bll{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em}
+.blv{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--text)}
+.blv-warn{color:var(--warn-text)}
+.bl-zone{display:flex;align-items:center;gap:8px;background:var(--warn-bg);border:1px solid #F0D090;border-radius:var(--r);padding:9px 13px;margin-bottom:14px}
+.bl-zone-sector{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--warn-text)}
+.bl-zone-sub{font-size:11px;color:var(--warn-text);opacity:.8}
+.bl-btn{width:100%;padding:14px;border:none;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;justify-content:center;gap:7px;transition:.12s;margin-bottom:8px}
+.bl-btn:last-child{margin-bottom:0}
+.bl-btn:active{transform:scale(.99)}
+.bl-primary{background:var(--accent);color:#fff}
+.bl-secondary{background:var(--bg2);color:var(--text2);border:1.5px solid var(--border2)}
+.bl-more{background:var(--green-bg);color:var(--green-text);border:1.5px solid #9FE0C8}
+.bl-group{background:var(--accent-bg);color:var(--accent-text);border:1.5px solid #B8CCFF}
+
+/* PHOTO */
+.photo-layout{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 14px;flex:1;min-height:0}
+.photo-col-left{display:flex;flex-direction:column;gap:8px;min-height:0}
+.photo-col-right{display:flex;flex-direction:column;gap:8px;min-height:0}
+.camera-wrap{background:#12141C;border-radius:var(--r2);flex:1;min-height:0;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.cam-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:24px 24px}
+.cam-corner{position:absolute;width:18px;height:18px;border-color:#1A5CFF;border-style:solid;opacity:.8}
+.cc-tl{top:8px;left:8px;border-width:2px 0 0 2px}.cc-tr{top:8px;right:8px;border-width:2px 2px 0 0}
+.cc-bl{bottom:8px;left:8px;border-width:0 0 2px 2px}.cc-br{bottom:8px;right:8px;border-width:0 2px 2px 0}
+.cam-lbl{position:absolute;top:7px;left:50%;transform:translateX(-50%);background:rgba(26,92,255,.85);border-radius:4px;padding:2px 8px;font-size:9px;font-weight:600;color:#fff;letter-spacing:.04em;white-space:nowrap}
+.cam-hint{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.55);border-radius:4px;padding:2px 7px;font-size:9px;color:rgba(255,255,255,.8);white-space:nowrap}
+.shutter-bar{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.shutter-btn{width:48px;height:48px;border-radius:50%;background:#fff;border:3px solid var(--border2);cursor:pointer;position:relative;flex-shrink:0;transition:.12s}
+.shutter-btn:active{transform:scale(.86)}
+.shutter-inner{position:absolute;inset:5px;border-radius:50%;background:var(--surface2)}
+.sh-side{flex:1;padding:8px 10px;border-radius:var(--r);font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--bg2);color:var(--text2);display:flex;align-items:center;justify-content:center;gap:5px;transition:.12s}
+.sh-side:active{background:var(--surface)}
+.sh-next{background:var(--green);color:#fff;border-color:var(--green)}
+.sh-next:disabled{background:var(--surface2);color:var(--text3);border-color:var(--border);cursor:not-allowed}
+.sh-next:not(:disabled):active{background:#0A8059}
+.photo-progress{flex-shrink:0}
+.prog-bar{height:4px;background:var(--surface2);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .3s}
+.prog-fill.done{background:var(--green)}
+.prog-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-top:4px}
+.step-item{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:var(--r);border:1px solid var(--border);background:var(--bg2);transition:.15s;flex-shrink:0}
+.step-item.active{border-color:var(--accent);background:var(--accent-bg)}
+.step-item.done{border-color:var(--green);background:var(--green-bg)}
+.si-num{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;border:1.5px solid var(--border2);color:var(--text3);flex-shrink:0;margin-top:1px}
+.step-item.active .si-num{background:var(--accent);border-color:var(--accent);color:#fff}
+.step-item.done .si-num{background:var(--green);border-color:var(--green);color:#fff}
+.si-title{font-size:11px;font-weight:600;color:var(--text)}
+.si-sub{font-size:10px;color:var(--text3)}
+.step-item.active .si-title{color:var(--accent-text)}
+.step-item.done .si-title{color:var(--green-text)}
+.extra-photos{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;flex-shrink:0}
+.ep-slot{aspect-ratio:1;border-radius:6px;background:var(--surface);border:1.5px dashed var(--border2);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:.12s;position:relative;overflow:hidden}
+.ep-slot:active{background:var(--surface2)}
+.ep-slot.filled{border:1.5px solid var(--border);background:var(--surface2)}
+.ep-slot svg{color:var(--text3)}
+.ep-slot .ep-lbl{font-size:8px;color:var(--text3);margin-top:2px;text-align:center}
+.ep-del{position:absolute;top:2px;right:2px;width:14px;height:14px;border-radius:50%;background:rgba(214,59,59,.8);border:none;color:#fff;font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.ep-filled-bg{width:100%;height:100%;background:linear-gradient(135deg,var(--surface2),var(--bg3));display:flex;align-items:center;justify-content:center}
+
+/* DETAILS */
+.detail-pad{padding:14px;display:flex;flex-direction:column;gap:10px;flex:1;overflow-y:auto}
+.section-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:13px}
+.sc-title{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
+.carrier-grid{display:flex;gap:6px;flex-wrap:wrap}
+.carrier-chip{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;border:1.5px solid var(--border2);background:var(--bg2);cursor:pointer;font-size:12px;font-weight:500;color:var(--text2);transition:.12s}
+.carrier-chip:hover{background:var(--surface)}
+.carrier-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.client-input{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--r);background:var(--surface);font-size:13px;color:var(--text);font-family:var(--sans);outline:none}
+.client-input:focus{border-color:var(--accent);background:var(--bg2)}
+.client-input::placeholder{color:var(--text3)}
+.comment-area{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--r);background:var(--surface);font-size:12px;color:var(--text);font-family:var(--sans);outline:none;resize:none;line-height:1.5}
+.comment-area:focus{border-color:var(--accent);background:var(--bg2)}
+.thumb-row{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.thumb-t{aspect-ratio:1;border-radius:6px;overflow:hidden;background:var(--surface2);position:relative}
+.thumb-t svg{width:100%;height:100%}
+.thumb-check{position:absolute;top:3px;right:3px;width:13px;height:13px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center}
+.action-bar{padding:12px 14px 16px;background:var(--bg2);border-top:1px solid var(--border);display:flex;flex-direction:column;gap:7px;flex-shrink:0}
+
+/* LIST */
+.list-pad{padding:12px 14px;flex:1;overflow-y:auto;display:flex;flex-direction:column}
+.needs-action-section{margin-bottom:14px}
+.needs-action-label{font-size:10px;font-weight:600;color:var(--red-text);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px;display:flex;align-items:center;gap:6px}
+.needs-action-label span{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:var(--red);color:#fff;font-size:9px;font-weight:700;font-family:var(--mono)}
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
+.sstat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:9px 6px;text-align:center;cursor:pointer;transition:.12s;user-select:none}
+.sstat:active{background:var(--bg3)}
+.sstat.af{border-width:2px}
+.sstat.af-new{border-color:var(--red);background:var(--red-bg)}
+.sstat.af-inwork{border-color:var(--warn);background:var(--warn-bg)}
+.sstat.af-done{border-color:var(--green);background:var(--green-bg)}
+.sstat.af-all{border-color:var(--accent);background:var(--accent-bg)}
+.ssn{font-size:17px;font-weight:700;font-family:var(--mono);line-height:1}
+.ssl{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+.cargo-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);margin-bottom:7px;overflow:hidden;cursor:pointer;transition:.12s;position:relative}
+.cargo-card:hover{border-color:var(--border2)}
+.cargo-card.expanded{border-color:var(--accent);box-shadow:0 0 0 3px rgba(26,92,255,.08)}
+.cargo-card.needs-photo{border-color:var(--red);border-left:3px solid var(--red)}
+.cc-stripe{width:3px;position:absolute;left:0;top:0;bottom:0}
+.cs-new{background:var(--red)}.cs-inwork{background:var(--warn)}.cs-done{background:var(--green)}.cs-queue{background:var(--border2)}
+.cc-body{padding:10px 12px 10px 16px}
+.cc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px}
+.cc-id{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--accent)}
+.cc-time{font-size:10px;color:var(--text3);font-family:var(--mono)}
+.cc-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px}
+.cc-sub{font-size:10px;color:var(--text3);margin-bottom:6px}
+.cc-badges{display:flex;gap:4px;flex-wrap:wrap}
+.notif-dot{position:absolute;top:10px;right:10px;width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px rgba(13,158,106,.15);animation:ndPulse 2s ease infinite}
+@keyframes ndPulse{0%,100%{box-shadow:0 0 0 3px rgba(13,158,106,.15)}50%{box-shadow:0 0 0 6px rgba(13,158,106,0)}}
+.cc-expand{border-top:1px solid var(--border);background:var(--bg3);display:none;padding:12px 12px 12px 16px}
+.cargo-card.expanded .cc-expand{display:block}
+.exp-photos{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:10px}
+.exp-photo{aspect-ratio:1;border-radius:6px;background:var(--surface2);overflow:hidden}
+.exp-photo svg{width:100%;height:100%}
+.exp-no-photo{background:var(--red-bg);border:1px solid #F0B8B8;border-radius:var(--r);padding:8px 10px;font-size:11px;color:var(--red-text);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.exp-meta{display:flex;flex-direction:column;margin-bottom:10px}
+.exp-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px}
+.exp-row:last-child{border:none}
+.exp-l{color:var(--text3)}
+.exp-v{font-family:var(--mono);font-weight:600;color:var(--text);text-align:right}
+.exp-v-warn{color:var(--warn-text)}.exp-v-accent{color:var(--accent-text)}
+.exp-actions{display:flex;gap:6px}
+.exp-btn{flex:1;padding:9px;border-radius:var(--r);font-size:11px;font-weight:600;cursor:pointer;border:none;font-family:var(--sans);display:flex;align-items:center;justify-content:center;gap:5px;transition:.12s}
+.exp-btn:active{transform:scale(.98)}
+.exp-btn-success{background:var(--green);color:#fff}
+.exp-btn-primary{background:var(--accent);color:#fff}
+.exp-btn-ghost{background:var(--bg2);border:1px solid var(--border);color:var(--text2)}
+.rescan-note{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--r);background:var(--green-bg);border:1px solid #9FE0C8;font-size:11px;color:var(--green-text);margin-bottom:8px;font-weight:500}
+.accept-note{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--r);background:var(--accent-bg);border:1px solid #B8CCFF;font-size:11px;color:var(--accent-text);margin-bottom:8px;font-weight:500}
+.empty-state{text-align:center;padding:32px 20px;color:var(--text3)}
+.empty-state p{font-size:13px;font-weight:500;color:var(--text2);margin:8px 0 4px}
+.empty-state span{font-size:11px}
+.divider-label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;display:flex;align-items:center;gap:6px;margin:10px 0 8px}
+.divider-label:before,.divider-label:after{content:'';flex:1;height:1px;background:var(--border)}
+
+
+/* TOASTS */
+.bottom-toast-wrap{position:fixed;bottom:16px;right:16px;z-index:300;pointer-events:none;display:flex;flex-direction:column;align-items:flex-end;gap:8px;max-width:300px}
+.bottom-toast{background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--r2);padding:12px 14px;display:flex;align-items:flex-start;gap:10px;pointer-events:all;box-shadow:var(--shadow-md);animation:btIn .35s cubic-bezier(.34,1.1,.64,1);width:300px}
+.bottom-toast.bt-green{border-left:4px solid var(--green)}
+.bottom-toast.bt-blue{border-left:4px solid var(--accent)}
+@keyframes btIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+.bt-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.bt-body{flex:1}
+.bt-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:1px}
+.bt-msg{font-size:11px;color:var(--text2);line-height:1.4}
+.bt-actions{display:flex;gap:6px;margin-top:8px}
+.bt-btn{padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:none;font-family:var(--sans);transition:.12s}
+.bt-btn-primary{background:var(--green);color:#fff}
+.bt-btn-ghost{background:var(--surface);border:1px solid var(--border);color:var(--text2)}
+.bt-close{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;line-height:1;padding:0;align-self:flex-start;flex-shrink:0}
+.top-toast-wrap{position:fixed;top:48px;left:0;right:0;z-index:301;pointer-events:none;padding:8px 12px;display:flex;flex-direction:column;gap:5px;align-items:center}
+.top-toast{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:10px 13px;display:flex;align-items:center;gap:9px;pointer-events:all;box-shadow:var(--shadow-md);max-width:380px;width:100%;animation:ttIn .3s cubic-bezier(.34,1.1,.64,1)}
+.top-toast.tt-green{border-left:3px solid var(--green)}
+.top-toast.tt-blue{border-left:3px solid var(--accent)}
+@keyframes ttIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.tt-icon{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tt-body{flex:1}
+.tt-title{font-size:11px;font-weight:600;color:var(--text)}
+.tt-msg{font-size:10px;color:var(--text2)}
+.tt-close{background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:0;line-height:1;flex-shrink:0}
+/* CODE ITEMS */
+.code-item{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r)}
+.code-item:first-child{border-radius:var(--r) var(--r) 0 0}
+.code-item:last-child{border-radius:0 0 var(--r) var(--r)}
+.code-item:only-child{border-radius:var(--r)}
+.code-item+.code-item{border-top:none}
+.ci-left{display:flex;align-items:center;gap:8px}
+.ci-num{width:18px;height:18px;border-radius:50%;background:var(--accent-bg);color:var(--accent-text);font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--mono)}
+.ci-code{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--text)}
+.ci-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:15px;line-height:1;padding:2px 4px;border-radius:4px}
+.ci-del:hover{background:var(--red-bg);color:var(--red)}
+
+.ec-pill{display:inline-flex;align-items:center;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;border:1.5px solid var(--border2);color:var(--text2);background:var(--bg2);transition:.12s;white-space:nowrap}
+.ec-pill:hover{border-color:var(--accent);color:var(--accent)}
+.ec-pill-on{background:var(--accent-bg);color:var(--accent-text);border-color:var(--accent)}
+.ec-row{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:12px 13px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px;cursor:pointer;transition:.12s}
+.ec-row:hover{border-color:var(--border2);box-shadow:var(--shadow)}
+.ec-status{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;white-space:nowrap}
+.ec-st-open{background:var(--accent-bg);color:var(--accent-text)}
+.ec-st-inwork{background:var(--warn-bg);color:var(--warn-text)}
+.ec-st-rescan{background:#F4EFF4;color:#6B2F6B}
+.ec-st-closed{background:var(--green-bg);color:var(--green-text)}
+.ec-id{font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:3px}
+.ec-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:3px}
+.ec-meta{font-size:11px;color:var(--text2)}
+
+/* ── ZOHO FLOW ── */
+.zf-step{display:flex;gap:0;margin-bottom:10px}
+.zf-left{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:36px}
+.zf-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;font-family:var(--mono)}
+.zf-line{width:2px;flex:1;min-height:10px;background:var(--border2);margin:3px 0}
+.zf-body{flex:1;border-radius:var(--r2);padding:11px 13px;margin-left:8px;border:1.5px solid transparent}
+.zf-actor{display:inline-flex;align-items:center;padding:2px 9px;border-radius:10px;font-size:10px;font-weight:700;margin-right:8px;vertical-align:middle}
+.zf-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px}
+.zf-sub{font-size:11px;color:var(--text2);line-height:1.6}
+.zf-ch{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.zf-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:10px;font-size:10px;font-weight:600;border:1px solid}
+.zf-chip-sl{background:#F4EFF4;color:#6B2F6B;border-color:#C8A0E0}
+.zf-chip-em{background:var(--accent-bg);color:var(--accent-text);border-color:#B8CCFF}
+.zf-chip-zo{background:#EEF3FF;color:#2060C0;border-color:#B0C8FF}
+.zf-chip-op{background:var(--surface);color:var(--text3);border-color:var(--border2);font-style:italic}
+.zf-warn{background:var(--warn-bg);border:1px solid var(--warn);border-radius:var(--r);padding:7px 10px;font-size:11px;color:var(--warn-text);line-height:1.6;margin-top:8px}
+.zf-subj{background:#1A1D2E;border-radius:var(--r);padding:8px 10px;margin-top:8px}
+.zf-subj-l{font-family:var(--mono);font-size:9px;color:#5A6080;letter-spacing:.07em;margin-bottom:3px}
+.zf-subj-v{font-family:var(--mono);font-size:11px;color:#4A9EDB;font-weight:600}
+.zf-subj-s{font-size:10px;color:#5A6080;margin-top:3px}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="logo">CARGOS OS · НПЄ</span>
+  <div class="topbar-right">
+    <span class="tb-user">Петренко О.</span>
+    <div class="tb-av">ПО</div>
+  </div>
+</div>
+
+<div class="nav">
+  <div class="tab on" id="tab1" onclick="sw(1)"><span class="tab-dot" style="background:var(--accent)"></span>Сканування</div>
+  <div class="tab" id="tab2" onclick="sw(2)"><span class="tab-dot" style="background:var(--warn)"></span>Фото</div>
+  <div class="tab" id="tab3" onclick="sw(3)"><span class="tab-dot" style="background:var(--accent)"></span>Деталі</div>
+  <div class="tab" id="tab4" onclick="sw(4)"><span class="tab-dot" style="background:var(--green)"></span>Робоче місце (підрозділ)<span class="tab-badge" id="list-badge">2</span></div>
+  <div class="tab" id="tab5" onclick="sw(5)"><span class="tab-dot" style="background:var(--zoho,#2060C0)"></span>Zoho</div>
+  <div class="tab" id="tab6" onclick="sw(6)"><span class="tab-dot" style="background:#9B59B6"></span>Є-ком запити</div>
+</div>
+
+<div class="top-toast-wrap" id="top-toast-wrap"></div>
+<div class="bottom-toast-wrap" id="bottom-toast-wrap"></div>
+
+<!-- ══ SCREEN 1 — SCAN ══ -->
+<div class="scr on" id="s1">
+  <div class="scan-viewport">
+    <div class="scan-grid-bg"></div>
+    <div class="scan-beam"></div>
+    <div class="scan-corners"><span class="sc-tl"></span><span class="sc-tr"></span><span class="sc-bl"></span><span class="sc-br"></span></div>
+    <div class="scan-ph" id="scan-ph">
+      <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3M17 14v3M17 17h3M20 17v3M14 17v3M14 20h3"/></svg>
+      <span class="scan-ph-txt">Наведіть на штрихкод</span>
+    </div>
+    <div class="scan-result" id="scan-result">
+      <div class="scan-result-code" id="scan-code-txt"></div>
+      <div class="scan-result-sub">Не розпізнано в системі</div>
+    </div>
+  </div>
+  <div class="scan-controls">
+    <div class="scan-field">
+      <span class="scan-field-icon"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h.01M7 12h.01M7 17h.01M12 7h5M12 12h5M12 17h5"/></svg></span>
+      <input type="text" id="scan-input" placeholder="або введіть трек-номер вручну">
+    </div>
+    <button class="btn btn-primary" id="scan-btn" onclick="doScan()">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 6V5a1 1 0 011-1h4M1 18v1a1 1 0 001 1h4M23 6V5a1 1 0 00-1-1h-4M23 18v1a1 1 0 01-1 1h-4"/><path d="M7 12h10"/></svg>
+      Відсканувати
+    </button>
+  </div>
+  <!-- Group scan active bar -->
+  <div id="group-bar" class="group-bar" style="display:none">
+    <div class="gb-icon"><svg width="14" height="14" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3M17 14v3M17 17h3M20 17v3M14 17v3M14 20h3"/></svg></div>
+    <div class="gb-text">
+      <div class="gb-title" id="gb-client">Групове сканування</div>
+      <div class="gb-sub">Скануйте коробки — фото не потрібне</div>
+    </div>
+    <div class="gb-count" id="gb-count">0</div>
+    <button class="gb-stop" onclick="stopGroupScan()">Завершити</button>
+  </div>
+</div>
+
+<!-- BLOCKER -->
+<div id="blocker" style="display:none;position:fixed;inset:0;z-index:200">
+  <div class="blocker-overlay">
+    <div class="blocker-sheet" onclick="event.stopPropagation()">
+      <div class="bl-head">
+        <div class="bl-icon"><svg width="20" height="20" fill="var(--red-text)" viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm0 3.5L20.5 20h-17L12 5.5zM11 10v4h2v-4h-2zm0 6v2h2v-2h-2z"/></svg></div>
+        <div>
+          <div class="bl-title">Вантаж НЕ зареєстрований (E-com)</div>
+          <div class="bl-sub">Штрихкод не знайдено в системі. Потрібна ручна ідентифікація.</div>
+        </div>
+      </div>
+      <!-- scanned codes list -->
+      <div id="bl-codes-list" style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px"></div>
+
+      <!-- scan more inline -->
+      <div id="bl-scan-more-row" style="display:flex;gap:8px;margin-bottom:12px">
+        <div style="flex:1;display:flex;align-items:center;background:var(--surface);border:1.5px solid var(--border2);border-radius:var(--r);overflow:hidden">
+          <span style="padding:0 10px;color:var(--text3);flex-shrink:0"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h.01M7 12h.01M7 17h.01M12 7h5M12 12h5M12 17h5"/></svg></span>
+          <input type="text" id="bl-scan-input" placeholder="Додати ще штрихкод..." style="flex:1;border:none;outline:none;font-family:var(--mono);font-size:12px;color:var(--text);background:transparent;padding:9px 8px 9px 0" autocomplete="off">
+        </div>
+        <button onclick="addCodeFromBlocker()" style="padding:9px 14px;background:var(--accent);border:none;border-radius:var(--r);color:#fff;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:var(--sans)">+ Додати</button>
+      </div>
+
+      <div class="bl-zone">
+        <svg width="14" height="14" fill="none" stroke="var(--warn-text)" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <div>
+          <div class="bl-zone-sector">Б-3 · ЗОНА ОЧІКУВАННЯ</div>
+          <div class="bl-zone-sub">Стелаж для нерозпізнаних · Поверх 1</div>
+        </div>
+      </div>
+      <button class="bl-btn bl-primary" onclick="goToPhoto()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        <span id="bl-photo-btn-txt">Додати фото та деталі</span>
+      </button>
+      <button class="bl-btn bl-secondary" onclick="leaveInQueue()">
+        Залишити в черзі — додам пізніше
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCREEN 2 — PHOTO ══ -->
+<div class="scr" id="s2">
+  <div class="photo-layout">
+    <div class="photo-col-left">
+      <div class="camera-wrap">
+        <div class="cam-grid"></div>
+        <div class="cam-corner cc-tl"></div><div class="cam-corner cc-tr"></div>
+        <div class="cam-corner cc-bl"></div><div class="cam-corner cc-br"></div>
+        <div class="cam-lbl" id="cam-lbl">ЛЕЙБА ПЕРШОЇ МИЛІ</div>
+        <div class="cam-hint" id="cam-hint">Відцентруйте лейбу в рамці</div>
+      </div>
+      <div class="shutter-bar">
+        <button class="sh-side" onclick="">
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="10" rx="1"/><path d="M6 17H3a1 1 0 01-1-1v-5a1 1 0 011-1h18a1 1 0 011 1v5a1 1 0 01-1 1h-3"/><rect x="6" y="14" width="12" height="8" rx="1"/></svg>
+          Стікер
+        </button>
+        <div class="shutter-btn" onclick="takePhoto()"><div class="shutter-inner"></div></div>
+        <button class="sh-side sh-next" id="photo-next-btn" disabled onclick="sw(3)">Далі →</button>
+      </div>
+      <div class="photo-progress">
+        <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+        <div class="prog-labels"><span id="prog-left-lbl" style="color:var(--accent-text);font-weight:500">Лейба першої милі</span><span id="prog-pct">0 / 2</span></div>
+      </div>
+    </div>
+    <div class="photo-col-right">
+      <div class="step-item active" id="step-lbl">
+        <div class="si-num" id="si-num-lbl">1</div>
+        <div><div class="si-title">Лейба першої милі</div><div class="si-sub">Штрихкод та адреса отримувача</div></div>
+      </div>
+      <div class="step-item" id="step-extra">
+        <div class="si-num" id="si-num-extra">2</div>
+        <div><div class="si-title">Решта фото</div><div class="si-sub">Загальний вигляд, ознаки</div></div>
+      </div>
+      <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;flex-shrink:0">Додаткові фото (2–4)</div>
+      <div class="extra-photos" id="extra-grid">
+        <div class="ep-slot" id="ep0" onclick="addExtra(0)"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span class="ep-lbl">Фронт</span></div>
+        <div class="ep-slot" id="ep1" onclick="addExtra(1)"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span class="ep-lbl">Бік</span></div>
+        <div class="ep-slot" id="ep2" onclick="addExtra(2)"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span class="ep-lbl">Зворот</span></div>
+        <div class="ep-slot" id="ep3" onclick="addExtra(3)"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span class="ep-lbl">Пошк.</span></div>
+      </div>
+      <div style="font-size:10px;color:var(--text3);text-align:center;flex-shrink:0" id="extra-count">Додано: 0 / 4</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCREEN 3 — DETAILS ══ -->
+<div class="scr" id="s3">
+  <div class="detail-pad">
+    <div class="section-card">
+      <div class="sc-title">Зроблені фото</div>
+      <div class="thumb-row">
+        <div class="thumb-t"><svg viewBox="0 0 60 60"><rect width="60" height="60" fill="#EEF0F6"/><rect x="10" y="18" width="40" height="25" rx="2" fill="#D8DCE8"/><rect x="14" y="22" width="20" height="4" rx="1" fill="#8890AA"/><rect x="14" y="28" width="32" height="2" rx="1" fill="#C2C8D8"/></svg><div class="thumb-check"><svg viewBox="0 0 9 9" fill="none"><path d="M1.5 4.5l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></div></div>
+        <div class="thumb-t"><svg viewBox="0 0 60 60"><rect width="60" height="60" fill="#EEF0F6"/><rect x="8" y="12" width="44" height="36" rx="3" fill="#D8DCE8"/><line x1="12" y1="30" x2="48" y2="30" stroke="#C2C8D8"/><line x1="30" y1="16" x2="30" y2="44" stroke="#C2C8D8"/></svg><div class="thumb-check"><svg viewBox="0 0 9 9" fill="none"><path d="M1.5 4.5l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></div></div>
+        <div class="thumb-t" id="thumb-extra-0" style="background:var(--surface);border:1.5px dashed var(--border2)"></div>
+        <div class="thumb-t" id="thumb-extra-1" style="background:var(--surface);border:1.5px dashed var(--border2)"></div>
+      </div>
+    </div>
+    <!-- Scanned codes summary -->
+    <div class="section-card" id="sc-codes-card">
+      <div class="sc-title" style="margin-bottom:8px">Відскановані штрихкоди</div>
+      <div id="sc-codes-list" style="display:flex;flex-direction:column;gap:5px"></div>
+    </div>
+
+    <div class="section-card">
+      <div class="sc-title">Підрядник першої милі</div>
+      <div style="font-size:11px;color:var(--text2);margin-bottom:10px">Оберіть перевізника якщо бачите його ознаки на посилці</div>
+      <div class="carrier-grid">
+        <div class="carrier-chip" onclick="pickCarrier(this,'InPost','#FF6600')"><span class="carrier-dot" style="background:#FF6600"></span>InPost</div>
+        <div class="carrier-chip" onclick="pickCarrier(this,'DHL','#D63B3B')"><span class="carrier-dot" style="background:#D63B3B"></span>DHL</div>
+        <div class="carrier-chip" onclick="pickCarrier(this,'DPD','#C0392B')"><span class="carrier-dot" style="background:#C0392B"></span>DPD</div>
+        <div class="carrier-chip" onclick="pickCarrier(this,'Velox','#1A1D2E')"><span class="carrier-dot" style="background:#1A1D2E"></span>Velox</div>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="sc-title">Клієнт E-com</div>
+      <div style="font-size:11px;color:var(--text2);margin-bottom:8px">Введіть назву клієнта якщо бачите її на упаковці, або залиште порожнім</div>
+      <input class="client-input" id="f-client" type="text" placeholder="Наприклад: Liki24, ASOS, Temu..." autocomplete="off">
+    </div>
+    <div class="section-card">
+      <div class="sc-title">Коментар для е-ком менеджера</div>
+      <textarea class="comment-area" id="f-comment" rows="3" placeholder="Деталі, особливості, що впадає в очі..."></textarea>
+    </div>
+  </div>
+  <div class="action-bar">
+    <button class="btn btn-success" id="send-btn" onclick="sendToEcom()">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg>
+      Зберегти та відправити в E-com
+    </button>
+  </div>
+</div>
+
+<!-- ══ SCREEN 4 — LIST ══ -->
+<div class="scr" id="s4">
+  <div class="list-pad">
+    <div class="needs-action-section" id="needs-action-section">
+      <div class="needs-action-label">Потребує дії <span id="needs-count">1</span></div>
+      <div id="needs-action-list"></div>
+    </div>
+    <div class="stat-row">
+      <div class="sstat" id="st-all" onclick="filterList('all')"><div class="ssn" style="color:var(--text2)" id="cnt-all">5</div><div class="ssl">Всі</div></div>
+      <div class="sstat" id="st-new" onclick="filterList('new')"><div class="ssn" style="color:var(--red)" id="cnt-new">1</div><div class="ssl">Нові</div></div>
+      <div class="sstat" id="st-inwork" onclick="filterList('inwork')"><div class="ssn" style="color:var(--warn)" id="cnt-inwork">2</div><div class="ssl">В роботі</div></div>
+      <div class="sstat" id="st-done" onclick="filterList('done')"><div class="ssn" style="color:var(--green)" id="cnt-done">2</div><div class="ssl">Готово</div></div>
+    </div>
+    <div class="divider-label">Всі запити</div>
+    <div id="cargo-list"></div>
+  </div>
+</div>
+
+
+<!-- ── ZOHO FLOW PANEL ── -->
+<div class="scr" id="s5">
+  <div class="list-pad">
+    <div style="font-size:14px;font-weight:700;color:var(--text);margin:0 0 3px">Zoho CRM · Інтеграція</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:16px">Покроковий флоу: Cargos OS → Zoho Deal → ідентифікація → Cargos OS</div>
+    <div id="zoho-flow-steps"></div>
+  </div>
+</div>
+
+<!-- ── ECOM PANEL ── -->
+<div class="scr" id="s6">
+  <div class="list-pad">
+    <div style="font-size:14px;font-weight:700;color:var(--text);margin:0 0 3px">Є-ком запити</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:14px">Нерозпізнані вантажі — статус ідентифікації</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+      <div class="ec-pill ec-pill-on" id="ecf-all"    onclick="ecFilter('all')">Всі</div>
+      <div class="ec-pill"            id="ecf-open"   onclick="ecFilter('open')">Відкритий</div>
+      <div class="ec-pill"            id="ecf-inwork" onclick="ecFilter('inwork')">В роботі</div>
+      <div class="ec-pill"            id="ecf-rescan" onclick="ecFilter('rescan')">Очікує пересканування</div>
+      <div class="ec-pill"            id="ecf-closed" onclick="ecFilter('closed')">Закритий</div>
+    </div>
+    <div id="ec-list"></div>
+  </div>
+</div>
+
+<script>
+var cargos = [
+  {id:'4930',tmpId:'TMP-20240331-4930',sector:'Б-3',scanCode:null,time:'15:47',status:'queue',carrier:null,client:null,comment:'крихкий, без ознак',notified:false,photos:false,needsPhoto:true,urgent:true},
+  {id:'4872',tmpId:'TMP-20240331-4872',sector:'Б-2',scanCode:'DHL9021738',time:'14:31',status:'done',carrier:'DHL',client:'Liki24',comment:'брендований скотч',notified:true,photos:true,needsPhoto:false,rescanReady:true},
+  {id:'4915',tmpId:'TMP-20240331-4915',sector:'А-4',scanCode:'YW4481299CN',time:'15:22',status:'inwork',carrier:'Yanwen',client:null,comment:'клієнт не визначений',notified:false,photos:true,needsPhoto:false},
+  {id:'4944',tmpId:'TMP-20240331-4944',sector:'В-1',scanCode:'CN9012344',time:'16:02',status:'inwork',carrier:'Cainiao',client:null,comment:'цілий',notified:false,photos:true,needsPhoto:false},
+  {id:'4951',tmpId:'TMP-20240331-4951',sector:'А-2',scanCode:'VELOX887712',time:'16:14',status:'done',carrier:'Velox',client:'iHerb',comment:'',notified:true,photos:true,needsPhoto:false,rescanReady:true,rescanned:false},
+];
+
+var currentFilter='all', expandedId=null, photoStep=0, extraCount=0, selCarrier=null;
+var pendingCodes=[];
+var lastSentClient=null, lastSentCarrier=null;
+var groupActive=false, groupClient=null, groupCarrier=null, groupCodes=[];  // legacy, unused
+var pendingRescanToast=true;
+
+/* NAV */
+function sw(n){
+  for(var i=1;i<=6;i++){
+    document.getElementById('s'+i).classList.toggle('on',i===n);
+    document.getElementById('tab'+i).classList.toggle('on',i===n);
+  }
+  if(n===4){
+    renderAll();
+  }
+  if(n===5){
+    renderZohoFlow();
+  }
+  if(n===6){
+    renderEcList();
+    if(pendingRescanToast){
+      pendingRescanToast=false;
+      setTimeout(function(){
+        showBToast('Можна пересканувати вантаж','TMP-20240331-4872 · Liki24 · Сектор Б-2','green','Перейти',function(){sw(4);});
+      },400);
+    }
+  }
+}
+
+/* SCAN */
+function doScan(){
+  var input=document.getElementById('scan-input');
+  var code=input.value.trim()||'YW'+Math.floor(Math.random()*9e6+1e6)+'CN';
+  var btn=document.getElementById('scan-btn');
+  btn.textContent='Сканування...'; btn.disabled=true;
+  setTimeout(function(){
+    btn.innerHTML='<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 6V5a1 1 0 011-1h4M1 18v1a1 1 0 001 1h4M23 6V5a1 1 0 00-1-1h-4M23 18v1a1 1 0 01-1 1h-4"/><path d="M7 12h10"/></svg>Відсканувати';
+    btn.disabled=false;
+    input.value='';
+    document.getElementById('scan-ph').style.display='none';
+    document.getElementById('scan-result').style.display='flex';
+    document.getElementById('scan-code-txt').textContent=code;
+    // Add to pending codes and show blocker
+    pendingCodes.push(code);
+    document.getElementById('blocker').style.display='flex';
+    renderBlockerCodes();
+    updateBlockerButtons();
+  },1200);
+}
+
+function updateBlockerButtons(){
+  // always visible — nothing conditional needed
+}
+
+function renderBlockerCodes(){
+  var list=document.getElementById('bl-codes-list');
+  if(!list) return;
+  list.innerHTML='';
+  pendingCodes.forEach(function(code,i){
+    var item=document.createElement('div');
+    item.className='code-item';
+    item.innerHTML='<div class="ci-left"><span class="ci-num">'+(i+1)+'</span><span class="ci-code">'+code+'</span></div>'+
+      '<button class="ci-del" onclick="removePendingCode('+i+')" title="Видалити">×</button>';
+    list.appendChild(item);
+  });
+  // Update photo button text
+  var btnTxt=document.getElementById('bl-photo-btn-txt');
+  if(btnTxt){
+    btnTxt.textContent=pendingCodes.length>1?'Додати фото для '+pendingCodes.length+' коробок':'Додати фото та деталі';
+  }
+}
+
+function removePendingCode(i){
+  pendingCodes.splice(i,1);
+  if(!pendingCodes.length){
+    document.getElementById('blocker').style.display='none';
+    document.getElementById('scan-ph').style.display='flex';
+    document.getElementById('scan-result').style.display='none';
+  } else {
+    renderBlockerCodes();
+  }
+}
+
+function addCodeFromBlocker(){
+  var inp=document.getElementById('bl-scan-input');
+  var code=inp.value.trim();
+  if(!code) code='YW'+Math.floor(Math.random()*9e6+1e6)+'CN';
+  inp.value='';
+  pendingCodes.push(code);
+  renderBlockerCodes();
+  inp.focus();
+}
+
+function goToPhoto(){
+  document.getElementById('blocker').style.display='none';
+  document.getElementById('scan-ph').style.display='flex';
+  document.getElementById('scan-result').style.display='none';
+  resetPhotoScreen();
+  renderDetailCodes();
+  sw(2);
+}
+
+function renderDetailCodes(){
+  var list=document.getElementById('sc-codes-list');
+  if(!list) return;
+  list.innerHTML='';
+  pendingCodes.forEach(function(code,i){
+    var item=document.createElement('div');
+    item.className='code-item';
+    item.innerHTML='<div class="ci-left"><span class="ci-num">'+(i+1)+'</span><span class="ci-code">'+code+'</span></div>';
+    list.appendChild(item);
+  });
+  // Show/hide the card
+  var card=document.getElementById('sc-codes-card');
+  if(card) card.style.display=pendingCodes.length?'block':'none';
+}
+
+function leaveInQueue(){
+  document.getElementById('blocker').style.display='none';
+  document.getElementById('scan-ph').style.display='flex';
+  document.getElementById('scan-result').style.display='none';
+  pendingCodes=[];
+  if(!cargos.find(function(c){return c.id==='NEW_Q';})){
+    cargos.unshift({id:'NEW_Q',tmpId:'TMP-20240331-'+(4960+Math.floor(Math.random()*10)),sector:'Б-3',scanCode:'YW'+Math.floor(Math.random()*9e6+1e6)+'CN',time:'15:51',status:'queue',carrier:null,client:null,comment:'',notified:false,photos:false,needsPhoto:true,urgent:false});
+  }
+  sw(4);
+}
+
+/* addAnotherBox merged into startGroupScan */
+
+function preselectCarrier(name){
+  selCarrier=null;
+  var colors={InPost:'#FF6600',DHL:'#D63B3B',DPD:'#C0392B',Velox:'#1A1D2E'};
+  document.querySelectorAll('.carrier-chip').forEach(function(ch){
+    ch.style.borderColor=''; ch.style.background=''; ch.style.color=''; ch.style.fontWeight='';
+    if(name&&ch.textContent.trim()===name){
+      var c=colors[name]||'#1A5CFF';
+      ch.style.borderColor=c; ch.style.background=c+'18'; ch.style.color=c; ch.style.fontWeight='600';
+      selCarrier=name;
+    }
+  });
+}
+
+/* GROUP SCAN */
+function startGroupScan(){ goToPhoto(); }
+
+function stopGroupScan(){ sw(4); }
+
+
+function showGroupFlash(code){}
+
+/* PHOTO */
+function resetPhotoScreen(){
+  photoStep=0; extraCount=0;
+  document.getElementById('prog-fill').style.width='0%';
+  document.getElementById('prog-fill').classList.remove('done');
+  document.getElementById('prog-pct').textContent='0 / 2';
+  document.getElementById('prog-left-lbl').textContent='Лейба першої милі';
+  document.getElementById('photo-next-btn').disabled=true;
+  document.getElementById('cam-lbl').textContent='ЛЕЙБА ПЕРШОЇ МИЛІ';
+  document.getElementById('cam-hint').textContent='Відцентруйте лейбу в рамці';
+  document.getElementById('step-lbl').className='step-item active';
+  document.getElementById('step-extra').className='step-item';
+  document.getElementById('si-num-lbl').textContent='1';
+  document.getElementById('si-num-extra').textContent='2';
+  document.getElementById('extra-count').textContent='Додано: 0 / 4';
+  [0,1,2,3].forEach(function(i){
+    var sl=document.getElementById('ep'+i);
+    sl.className='ep-slot';
+    sl.innerHTML='<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span class="ep-lbl">'+['Фронт','Бік','Зворот','Пошк.'][i]+'</span>';
+  });
+}
+
+function takePhoto(){
+  if(photoStep===0){
+    photoStep=1;
+    document.getElementById('prog-fill').style.width='50%';
+    document.getElementById('prog-pct').textContent='1 / 2';
+    document.getElementById('prog-left-lbl').textContent='Решта фото';
+    document.getElementById('cam-lbl').textContent='ЗАГАЛЬНИЙ ВИГЛЯД';
+    document.getElementById('cam-hint').textContent='Сфотографуйте посилку цілком';
+    document.getElementById('step-lbl').className='step-item done';
+    document.getElementById('si-num-lbl').innerHTML='<svg width="10" height="10" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>';
+    document.getElementById('step-extra').className='step-item active';
+  } else {
+    document.getElementById('prog-fill').style.width='100%';
+    document.getElementById('prog-fill').classList.add('done');
+    document.getElementById('prog-pct').textContent='2 / 2';
+    document.getElementById('prog-left-lbl').textContent='Готово!';
+    document.getElementById('step-extra').className='step-item done';
+    document.getElementById('si-num-extra').innerHTML='<svg width="10" height="10" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>';
+    document.getElementById('photo-next-btn').disabled=false;
+  }
+}
+
+function addExtra(i){
+  var slot=document.getElementById('ep'+i);
+  if(slot.classList.contains('filled')){
+    slot.className='ep-slot';
+    slot.innerHTML='<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span class="ep-lbl">'+['Фронт','Бік','Зворот','Пошк.'][i]+'</span>';
+    extraCount=Math.max(0,extraCount-1);
+  } else {
+    if(extraCount>=4) return;
+    slot.className='ep-slot filled';
+    slot.innerHTML='<div class="ep-filled-bg"><svg width="14" height="14" fill="none" stroke="var(--green)" stroke-width="2" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div>';
+    extraCount++;
+  }
+  document.getElementById('extra-count').textContent='Додано: '+extraCount+' / 4';
+}
+
+/* DETAILS */
+function pickCarrier(el,name,color){
+  document.querySelectorAll('.carrier-chip').forEach(function(c){c.style.borderColor='';c.style.background='';c.style.color='';c.style.fontWeight='';});
+  if(selCarrier===name){selCarrier=null;return;}
+  selCarrier=name;
+  el.style.borderColor=color; el.style.background=color+'18'; el.style.color=color; el.style.fontWeight='600';
+}
+
+function sendToEcom(){
+  var btn=document.getElementById('send-btn');
+  btn.innerHTML='<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Відправка...';
+  btn.disabled=true;
+  setTimeout(function(){
+    var clientVal=document.getElementById('f-client').value.trim()||null;
+    var commentVal=document.getElementById('f-comment').value;
+    lastSentClient=clientVal;
+    lastSentCarrier=selCarrier;
+    var now=new Date();
+    var timeStr=('0'+now.getHours()).slice(-2)+':'+('0'+now.getMinutes()).slice(-2);
+    // Create one cargo entry per scanned code
+    var codesToSend=pendingCodes.length?pendingCodes:['—'];
+    codesToSend.forEach(function(code,i){
+      var nid='SEND'+(Date.now()+i);
+      cargos.unshift({
+        id:nid,
+        tmpId:'TMP-20240331-'+(5100+cargos.length),
+        sector:'Б-3',
+        scanCode:code,
+        time:timeStr,
+        status:'inwork',
+        carrier:selCarrier||null,
+        client:clientVal,
+        comment:commentVal+(codesToSend.length>1?' · '+codesToSend.length+' коробок у групі':''),
+        notified:false,
+        photos:true,
+        needsPhoto:false,
+        groupSize:codesToSend.length
+      });
+    });
+    pendingCodes=[];
+    var qty=codesToSend.length;
+    var msg=qty>1?qty+' коробок передано до е-ком менеджера':'Вантаж передано до е-ком менеджера';
+    showBToast('Задачу створено ✓',msg,'green',null,null);
+    setTimeout(function(){
+      btn.innerHTML='<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg>Зберегти та відправити в E-com';
+      btn.disabled=false;
+      sw(4);
+    },800);
+  },1300);
+}
+
+/* LIST */
+function filterList(f){
+  currentFilter=f;
+  document.querySelectorAll('.sstat').forEach(function(s){s.className='sstat';});
+  var cls={all:'af-all',new:'af-new',inwork:'af-inwork',done:'af-done'}[f];
+  document.getElementById('st-'+f).className='sstat af '+cls;
+  renderAll();
+}
+
+function toggleExpand(id){expandedId=expandedId===id?null:id;renderAll();}
+
+function renderAll(){renderNeedsAction();renderCargoList();}
+
+function renderNeedsAction(){
+  var needs=cargos.filter(function(c){return c.needsPhoto;});
+  document.getElementById('needs-count').textContent=needs.length;
+  var wrap=document.getElementById('needs-action-section');
+  wrap.style.display=needs.length?'block':'none';
+  var list=document.getElementById('needs-action-list');
+  list.innerHTML='';
+  needs.forEach(function(c){
+    var el=document.createElement('div');
+    el.className='cargo-card needs-photo'+(expandedId===c.id?' expanded':'');
+    el.onclick=function(){toggleExpand(c.id);};
+    el.innerHTML='<div class="cc-body">'+
+      '<div class="cc-head"><span class="cc-id">'+c.tmpId+'</span><span class="cc-time">'+c.time+'</span></div>'+
+      '<div class="cc-title">Сектор '+c.sector+(c.urgent?' <span class="pill pill-red" style="font-size:9px;vertical-align:middle">!</span>':'')+'</div>'+
+      '<div class="cc-sub">'+(c.carrier||'Підрядник не визначено')+'</div>'+
+      '<div class="cc-badges"><span class="pill pill-red" style="font-size:10px">⚠ Потрібно додати фото</span></div>'+
+    '</div>'+
+    '<div class="cc-expand">'+
+      '<div class="exp-no-photo"><svg width="12" height="12" fill="var(--red-text)" viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm0 3.5L20.5 20h-17L12 5.5zM11 10v4h2v-4h-2zm0 6v2h2v-2h-2z"/></svg>Фото ще не завантажено</div>'+
+      '<div class="exp-meta">'+
+        '<div class="exp-row"><span class="exp-l">Тимч. ID</span><span class="exp-v">'+c.tmpId+'</span></div>'+
+        '<div class="exp-row"><span class="exp-l">Сектор</span><span class="exp-v exp-v-warn">'+c.sector+'</span></div>'+
+        (c.comment?'<div class="exp-row"><span class="exp-l">Коментар</span><span class="exp-v" style="font-family:var(--sans);font-weight:400;font-size:10px;color:var(--text2)">'+c.comment+'</span></div>':'')+
+      '</div>'+
+      '<div class="exp-actions">'+
+        '<button class="exp-btn exp-btn-primary" onclick="goAddPhoto(event,\''+c.id+'\')">'+
+          '<svg width="12" height="12" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Додати фото</button>'+
+      '</div>'+
+    '</div>';
+    list.appendChild(el);
+  });
+}
+
+function goAddPhoto(e,id){e.stopPropagation();resetPhotoScreen();sw(2);}
+
+function renderCargoList(){
+  var list=document.getElementById('cargo-list');
+  var counts={all:0,new:0,inwork:0,done:0};
+  var main=cargos.filter(function(c){return !c.needsPhoto;});
+  main.forEach(function(c){
+    counts.all++;
+    if(c.status==='new'||c.status==='queue') counts.new++;
+    else if(c.status==='inwork') counts.inwork++;
+    else if(c.status==='done') counts.done++;
+  });
+  document.getElementById('cnt-all').textContent=counts.all;
+  document.getElementById('cnt-new').textContent=counts.new;
+  document.getElementById('cnt-inwork').textContent=counts.inwork;
+  document.getElementById('cnt-done').textContent=counts.done;
+  var badgeCount=cargos.filter(function(c){return c.status==='inwork'&&!c.notified;}).length;
+  document.getElementById('list-badge').textContent=badgeCount;
+
+  var filtered=main.filter(function(c){
+    if(currentFilter==='all') return true;
+    if(currentFilter==='new') return c.status==='new'||c.status==='queue';
+    return c.status===currentFilter;
+  });
+
+  filtered.sort(function(a,b){
+    function pri(c){
+      if(c.status==='done'&&c.rescanned) return 0;
+      if(c.status==='done'&&!c.rescanned) return 1;
+      if(c.status==='inwork') return 2;
+      return 3;
+    }
+    return pri(a)-pri(b);
+  });
+
+  if(!filtered.length){
+    list.innerHTML='<div class="empty-state"><svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 9h6M9 13h4"/></svg><p>Запитів не знайдено</p><span>Спробуйте інший фільтр</span></div>';
+    return;
+  }
+
+  list.innerHTML='';
+  filtered.forEach(function(c){
+    var isExp=expandedId===c.id;
+    var statusLabel={new:'Новий',queue:'В черзі',inwork:'В роботі · е-ком обробляє',done:'Завершено'}[c.status]||c.status;
+    var pillCls={new:'pill-red',queue:'pill-gray',inwork:'pill-warn',done:'pill-green'}[c.status];
+    var stripCls={new:'cs-new',queue:'cs-queue',inwork:'cs-inwork',done:'cs-done'}[c.status];
+
+    var expandContent='';
+    if(c.status==='done'){
+      expandContent=
+        '<div class="rescan-note"><svg width="13" height="13" fill="none" stroke="var(--green-text)" stroke-width="2" viewBox="0 0 24 24"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>Ідентифіковано — готово до повторного сканування</div>'+
+        (c.rescanned?'<div class="accept-note"><svg width="13" height="13" fill="none" stroke="var(--accent-text)" stroke-width="2" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Дані розпізнані — можна прийняти</div>':'')+
+        '<div class="exp-photos">'+thumbsSvg()+'</div>'+
+        metaRows(c)+
+        '<div class="exp-actions">'+
+          (c.rescanned
+            ?'<button class="exp-btn exp-btn-success" onclick="acceptCargo(event,\''+c.id+'\')"><svg width="12" height="12" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Прийняти вантаж</button>'
+            :'<button class="exp-btn exp-btn-primary" onclick="doRescan(event,\''+c.id+'\')"><svg width="12" height="12" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>Пересканувати</button>'
+          )+
+          '<button class="exp-btn exp-btn-ghost" onclick="event.stopPropagation()">Деталі</button>'+
+        '</div>';
+    } else {
+      expandContent=
+        (c.photos?'<div class="exp-photos">'+thumbsSvg()+'</div>':'<div class="exp-no-photo"><svg width="12" height="12" fill="var(--red-text)" viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm0 3.5L20.5 20h-17L12 5.5zM11 10v4h2v-4h-2zm0 6v2h2v-2h-2z"/></svg>Фото не завантажено</div>')+
+        metaRows(c)+
+        '<div class="exp-actions"><button class="exp-btn exp-btn-ghost" onclick="event.stopPropagation()">'+(c.status==='inwork'?'Е-ком обробляє...':'В черзі')+'</button></div>';
+    }
+
+    var el=document.createElement('div');
+    el.className='cargo-card'+(isExp?' expanded':'')+(c.rescanReady&&!c.rescanned?' notified-card':'');
+    el.onclick=function(){toggleExpand(c.id);};
+    el.innerHTML='<div class="cc-stripe '+stripCls+'"></div>'+
+      '<div class="cc-body">'+
+        '<div class="cc-head"><span class="cc-id">'+c.tmpId+'</span><span class="cc-time">'+c.time+'</span></div>'+
+        '<div class="cc-title">'+c.sector+(c.client?' · '+c.client:'')+'</div>'+
+        '<div class="cc-sub">'+(c.carrier||'Підрядник не визначено')+(c.scanCode?' · '+c.scanCode:'')+'</div>'+
+        '<div class="cc-badges">'+
+          '<span class="pill '+pillCls+'" style="font-size:10px">'+statusLabel+'</span>'+
+          (c.status==='done'?'<span class="pill pill-green" style="font-size:10px">↩ Пересканування</span>':'')+
+          (c.isGrouped?'<span class="pill pill-blue" style="font-size:10px">⬩ Групове</span>':'')+
+        '</div>'+
+      '</div>'+
+      (c.notified?'<div class="notif-dot"></div>':'')+
+      '<div class="cc-expand">'+expandContent+'</div>';
+    list.appendChild(el);
+  });
+}
+
+function thumbsSvg(){
+  return '<div class="exp-photo"><svg viewBox="0 0 60 60"><rect width="60" height="60" fill="#EEF0F6"/><rect x="10" y="18" width="40" height="25" rx="2" fill="#D8DCE8"/><rect x="14" y="22" width="20" height="4" rx="1" fill="#8890AA"/></svg></div>'+
+    '<div class="exp-photo"><svg viewBox="0 0 60 60"><rect width="60" height="60" fill="#EEF0F6"/><rect x="8" y="12" width="44" height="36" rx="3" fill="#D8DCE8"/><line x1="12" y1="30" x2="48" y2="30" stroke="#C2C8D8"/><line x1="30" y1="16" x2="30" y2="44" stroke="#C2C8D8"/></svg></div>'+
+    '<div class="exp-photo"><svg viewBox="0 0 60 60"><rect width="60" height="60" fill="#EEF0F6"/><rect x="8" y="12" width="44" height="36" rx="3" fill="#D8DCE8"/></svg></div>'+
+    '<div class="exp-photo" style="background:var(--surface);border:1.5px dashed var(--border2)"></div>';
+}
+
+function metaRows(c){
+  return '<div class="exp-meta">'+
+    '<div class="exp-row"><span class="exp-l">Тимч. ID</span><span class="exp-v">'+c.tmpId+'</span></div>'+
+    '<div class="exp-row"><span class="exp-l">Сектор</span><span class="exp-v exp-v-warn">'+c.sector+'</span></div>'+
+    '<div class="exp-row"><span class="exp-l">Підрядник</span><span class="exp-v">'+(c.carrier||'—')+'</span></div>'+
+    '<div class="exp-row"><span class="exp-l">Клієнт</span><span class="exp-v '+(c.client?'exp-v-accent':'')+'">'+(c.client||'Не визначено')+'</span></div>'+
+    (c.comment?'<div class="exp-row"><span class="exp-l">Коментар</span><span class="exp-v" style="font-family:var(--sans);font-weight:400;font-size:10px;color:var(--text2)">'+c.comment+'</span></div>':'')+
+  '</div>';
+}
+
+function doRescan(e,id){
+  e.stopPropagation();
+  var c=cargos.find(function(x){return x.id===id;});
+  if(!c) return;
+  setTimeout(function(){
+    c.rescanned=true; renderAll();
+    showBToast('Дані розпізнані ✓',c.tmpId+' · Можна прийняти вантаж','green','Прийняти',function(){acceptCargoById(id);});
+  },1200);
+}
+
+function acceptCargo(e,id){e.stopPropagation();acceptCargoById(id);}
+function acceptCargoById(id){
+  cargos=cargos.filter(function(c){return c.id!==id;});
+  expandedId=null;
+  showBToast('Вантаж прийнято ✓','Зараховано до системи Cargos','green',null,null);
+  renderAll();
+}
+
+
+/* TOASTS */
+function showTToast(title,msg,type){
+  var wrap=document.getElementById('top-toast-wrap');
+  var el=document.createElement('div');
+  el.className='top-toast tt-'+(type||'blue');
+  var bg={green:'var(--green-bg)',blue:'var(--accent-bg)'}[type]||'var(--accent-bg)';
+  var col={green:'var(--green)',blue:'var(--accent)'}[type]||'var(--accent)';
+  var ic={green:'<path d="M20 6L9 17l-5-5"/>',blue:'<circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>'}[type]||'';
+  el.innerHTML='<div class="tt-icon" style="background:'+bg+'"><svg width="12" height="12" fill="none" stroke="'+col+'" stroke-width="2.5" viewBox="0 0 24 24">'+ic+'</svg></div>'+
+    '<div class="tt-body"><div class="tt-title">'+title+'</div><div class="tt-msg">'+msg+'</div></div>'+
+    '<button class="tt-close" onclick="this.parentNode.remove()">×</button>';
+  wrap.appendChild(el);
+  setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},4000);
+}
+
+function showBToast(title,msg,type,actionLabel,actionFn){
+  var wrap=document.getElementById('bottom-toast-wrap');
+  var el=document.createElement('div');
+  el.className='bottom-toast bt-'+(type||'green');
+  var bg={green:'var(--green-bg)',blue:'var(--accent-bg)'}[type]||'var(--green-bg)';
+  var col={green:'var(--green)',blue:'var(--accent)'}[type]||'var(--green)';
+  var ic={green:'<path d="M20 6L9 17l-5-5"/>',blue:'<path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/>'}[type]||'';
+  var actHtml=actionLabel?'<div class="bt-actions"><button class="bt-btn bt-btn-primary" id="bt-act-'+Date.now()+'">'+actionLabel+'</button><button class="bt-btn bt-btn-ghost" onclick="this.closest(\'.bottom-toast\').remove()">Пізніше</button></div>':'';
+  el.innerHTML='<div class="bt-icon" style="background:'+bg+'"><svg width="14" height="14" fill="none" stroke="'+col+'" stroke-width="2.5" viewBox="0 0 24 24">'+ic+'</svg></div>'+
+    '<div class="bt-body"><div class="bt-title">'+title+'</div><div class="bt-msg">'+msg+'</div>'+actHtml+'</div>'+
+    '<button class="bt-close" onclick="this.parentNode.remove()">×</button>';
+  wrap.appendChild(el);
+  if(actionLabel&&actionFn) el.querySelector('.bt-btn-primary').onclick=function(){el.remove();actionFn();};
+  if(!actionLabel) setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},5000);
+}
+
+/* INIT */
+renderAll();
+
+/* ECOM REQUESTS */
+var EC_REQS=[
+  {id:'EC-001',tmp:'TMP-4960',sector:'А-2',carrier:'DHL',    client:'Liki24',  time:'16:01',ageMin:12, status:'open',   manager:'Шимко Олег',   comment:'AI підказка: Liki24 91%'},
+  {id:'EC-002',tmp:'TMP-4915',sector:'А-4',carrier:'Yanwen', client:null,      time:'15:22',ageMin:51, status:'inwork', manager:'Коваль Ірина',  comment:'клієнт не визначений'},
+  {id:'EC-003',tmp:'TMP-4944',sector:'В-1',carrier:'Cainiao',client:null,      time:'16:02',ageMin:11, status:'inwork', manager:'Шимко Олег',   comment:'менеджер призначений'},
+  {id:'EC-004',tmp:'TMP-4872',sector:'Б-2',carrier:'DHL',    client:'Liki24',  time:'14:31',ageMin:92, status:'rescan', manager:'Коваль Ірина',  comment:'МЕН зареєстровано'},
+  {id:'EC-005',tmp:'TMP-4808',sector:'В-3',carrier:'InPost', client:'ASOS',    time:'13:10',ageMin:143,status:'closed', manager:'Шимко Олег',   comment:'ідентифіковано'},
+  {id:'EC-006',tmp:'TMP-4951',sector:'А-2',carrier:'Velox',  client:'iHerb',   time:'16:14',ageMin:9,  status:'closed', manager:'Петренко В.',  comment:'Deal закрито'},
+  {id:'EC-007',tmp:'TMP-4930',sector:'Б-3',carrier:null,     client:null,      time:'15:47',ageMin:26, status:'open',   manager:'—',            comment:'без ознак, черговий'},
+];
+var ecFilter_cur='all';
+var EC_LABEL={open:'Відкритий',inwork:'В роботі',rescan:'Очікує пересканування',closed:'Закритий'};
+var EC_CLS  ={open:'ec-st-open',inwork:'ec-st-inwork',rescan:'ec-st-rescan',closed:'ec-st-closed'};
+var EC_DOT  ={open:'var(--accent)',inwork:'var(--warn)',rescan:'#9B59B6',closed:'var(--green)'};
+
+function ecFilter(f){
+  ecFilter_cur=f;
+  ['all','open','inwork','rescan','closed'].forEach(function(x){
+    var el=document.getElementById('ecf-'+x);
+    if(el)el.className='ec-pill'+(x===f?' ec-pill-on':'');
+  });
+  renderEcList();
+}
+
+function renderEcList(){
+  var list=document.getElementById('ec-list');
+  if(!list)return;
+  var items=EC_REQS.filter(function(r){return ecFilter_cur==='all'||r.status===ecFilter_cur;});
+  if(!items.length){
+    list.innerHTML='<div style="text-align:center;padding:32px 16px;color:var(--text3);font-size:12px">Немає запитів</div>';
+    return;
+  }
+  list.innerHTML=items.map(function(r){
+    var h=Math.floor(r.ageMin/60),m=r.ageMin%60;
+    var age=h>0?h+'г '+m+'хв':m+'хв тому';
+    var dot='<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:'+EC_DOT[r.status]+';margin-right:4px;vertical-align:middle"></span>';
+    var clientTxt=r.client||'Клієнт не визначений';
+    var carrierTxt=r.carrier?(' · '+r.carrier):'';
+    var commentTxt=r.comment?(' · <span style="color:var(--text3)">'+r.comment+'</span>'):'';
+    return '<div class="ec-row">'
+      +'<div style="flex:1;min-width:0">'
+        +'<div class="ec-id">'+r.tmp+' · '+r.sector+carrierTxt+'</div>'
+        +'<div class="ec-title">'+clientTxt+'</div>'
+        +'<div class="ec-meta">'+r.manager+commentTxt+'</div>'
+      +'</div>'
+      +'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">'
+        +'<div style="font-size:10px;color:var(--text3);text-align:right">'+r.time+'<br>'+age+'</div>'
+        +'<div class="ec-status '+EC_CLS[r.status]+'">'+dot+EC_LABEL[r.status]+'</div>'
+      +'</div>'
+    +'</div>';
+  }).join('');
+}
+
+
+/* ZOHO FLOW */
+var ZF_STEPS = [
+  {
+    num:'1', actor:'НПЄ · Cargos', actorBg:'#E8B84B', actorFg:'#fff',
+    bodyBg:'#FFFBF2', bodyBorder:'#E8D090',
+    title:'Скан + фото (~30 сек)',
+    sub:'Штрихкод не знайдено → blocker → 2–3 фото + підрядник (InPost / DHL / DPD / Velox) → відправити.',
+    chips:[], warn:'', subj:null
+  },
+  {
+    num:'2', actor:'Cargos · авто', actorBg:'#2060C0', actorFg:'#fff',
+    bodyBg:'#EBF0FF', bodyBorder:'#B8CCFF',
+    title:'Routing через технічну пошту',
+    sub:'Cargos надсилає запит на ecom-unidentified@npg.ua.',
+    chips:[],
+    warn:'',
+    subj:{l:'EMAIL SUBJECT', v:'[Шимко Олег] Нерозпізнаний вантаж #TMP-4960 · НПЄ · DHL · A-2', s:'Менеджер у subject — лист не загубиться на загальній пошті'}
+  },
+  {
+    num:'3', actor:'Менеджер · Zoho', actorBg:'#0D9E6A', actorFg:'#fff',
+    bodyBg:'#E6F7F1', bodyBorder:'#9FE0C8',
+    title:'Відкриває Deal, вводить клієнта, надсилає email',
+    sub:'Slack або email сигналізує. Відкриває Deal — фото, підрядник, контакти вже є. Вводить клієнта → надсилає email клієнту прямо з Deal. Stage → In Progress.',
+    chips:[], warn:'', subj:null
+  },
+  {
+    num:'4', actor:'Менеджер / Zoho', actorBg:'#4070B0', actorFg:'#fff',
+    bodyBg:'#EEF3FF', bodyBorder:'#B0C8FF',
+    title:'МЕН зареєстровано',
+    sub:'Клієнт додав деталі і МЕН є в системі з усіма даними АБО в Zoho менеджер закриває Deal → авто-відповідь в Cargos: статус картки змінюється → НПЄ бачить «Ідентифіковано, готово до прийомки».',
+    chips:[], warn:'', subj:null
+  },
+  {
+    num:'5', actor:'НПЄ · Cargos', actorBg:'#E8B84B', actorFg:'#fff',
+    bodyBg:'#FFFBF2', bodyBorder:'#E8D090',
+    title:'Прийомка та випуск',
+    sub:'Статус картки змінився на «Ідентифіковано» → прийомка (статус 23) → випуск (статус 26).',
+    chips:[], warn:'', subj:null
+  },
+];
+
+function renderZohoFlow(){
+  var wrap = document.getElementById('zoho-flow-steps');
+  if(!wrap) return;
+  wrap.innerHTML = ZF_STEPS.map(function(s, idx){
+    var isLast = idx === ZF_STEPS.length - 1;
+    var chips = s.chips.map(function(c){
+      return '<span class="zf-chip '+c.cls+'">'+c.label+'</span>';
+    }).join('');
+    var warn = s.warn ? '<div class="zf-warn"><strong>⚠ </strong>'+s.warn+'</div>' : '';
+    var subj = s.subj ? '<div class="zf-subj"><div class="zf-subj-l">'+s.subj.l+'</div><div class="zf-subj-v">'+s.subj.v+'</div><div class="zf-subj-s">'+s.subj.s+'</div></div>' : '';
+    return '<div class="zf-step">'
+      + '<div class="zf-left">'
+        + '<div class="zf-num" style="background:'+s.actorBg+'">'+s.num+'</div>'
+        + (isLast ? '' : '<div class="zf-line"></div>')
+      + '</div>'
+      + '<div class="zf-body" style="background:'+s.bodyBg+';border-color:'+s.bodyBorder+'">'
+        + '<div class="zf-title">'
+          + '<span class="zf-actor" style="background:'+s.actorBg+';color:'+s.actorFg+'">'+s.actor+'</span>'
+          + s.title
+        + '</div>'
+        + '<div class="zf-sub">'+s.sub+'</div>'
+        + (chips ? '<div class="zf-ch">'+chips+'</div>' : '')
+        + warn
+        + subj
+      + '</div>'
+    + '</div>';
+  }).join('');
+}
+
+</script>
+</body>
+</html>
