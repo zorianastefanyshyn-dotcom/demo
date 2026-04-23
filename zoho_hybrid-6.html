@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Варіант B · Zoho Hybrid</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+:root{
+--bg:#F4F6FB;--bg2:#fff;--bg3:#ECEEF5;--surface:#ECEEF5;--surface2:#E2E5EF;
+--border:#DDE1EE;--border2:#C8CEDF;
+--accent:#1A5CFF;--accent-bg:#EBF0FF;--accent-text:#0C3EBB;
+--green:#0D9E6A;--green-bg:#E6F7F1;--green-text:#075A3C;
+--red:#D63B3B;--red-bg:#FEECEC;--red-text:#7A1F1F;
+--warn:#B87500;--warn-bg:#FEF6E6;--warn-text:#6B4200;
+--zoho-blue:#2060C0;--zoho-nav:#1A4A9A;
+--text:#1A1D2E;--text2:#5A6080;--text3:#8890AA;
+--mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;
+--r:6px;--r2:10px;--shadow:0 1px 3px rgba(0,0,0,.06);--shadow-md:0 4px 16px rgba(0,0,0,.10);
+}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;line-height:1.5;display:flex;flex-direction:column}
+
+/* TOPBAR */
+.topbar{height:50px;min-height:50px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0;gap:16px}
+.logo{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.08em}
+.top-nav{display:flex;gap:2px;background:var(--surface);border-radius:12px;padding:3px}
+.tnav{display:flex;align-items:center;gap:6px;padding:5px 14px;border-radius:var(--r2);font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;transition:.12s;white-space:nowrap}
+.tnav:hover{background:var(--bg2);color:var(--text)}
+.tnav.on{background:var(--bg2);color:var(--accent);font-weight:600;box-shadow:var(--shadow)}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.av{width:30px;height:30px;border-radius:50%;background:var(--accent-bg);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;font-weight:700;color:var(--accent)}
+.view{display:none;flex:1;min-height:0;overflow:hidden}
+.view.on{display:flex}
+
+/* ── PUSH + EMAIL VIEW ── */
+.push-view{flex-direction:column;overflow-y:auto;width:100%;background:var(--bg)}
+.push-wrap{max-width:800px;margin:0 auto;padding:24px 20px;width:100%}
+.pe-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.pe-section-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.pe-section-title::after{content:'';flex:1;height:0.5px;background:var(--border)}
+
+/* Slack */
+.sl-wrap{background:#1A1D21;border-radius:12px;overflow:hidden;display:flex}
+.sl-sidebar{background:#19171D;width:130px;flex-shrink:0;padding:6px 0}
+.sl-ws-name{padding:6px 10px 7px;font-size:11px;font-weight:700;color:#D1D2D3;border-bottom:1px solid #2D2F34;margin-bottom:4px}
+.sl-ch{display:flex;align-items:center;gap:5px;padding:3px 10px;font-size:11px;color:#888;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sl-ch.active{background:#2D2F34;color:#D1D2D3;border-radius:4px;margin:1px 6px;padding:3px 6px}
+.sl-main{flex:1;display:flex;flex-direction:column;min-width:0}
+.sl-ch-hdr{display:flex;align-items:center;gap:7px;padding:7px 10px;border-bottom:1px solid #2D2F34;flex-shrink:0}
+.sl-ch-name{font-size:12px;font-weight:700;color:#D1D2D3}
+.sl-ch-desc{font-size:10px;color:#666}
+.sl-msgs{padding:10px 10px 12px;display:flex;flex-direction:column;gap:8px}
+.sl-divider{display:flex;align-items:center;gap:8px;margin:2px 0}
+.sl-divider-line{flex:1;height:0.5px;background:#2D2F34}
+.sl-divider-txt{font-size:10px;color:#666}
+.sl-msg{display:flex;gap:7px;opacity:.45}
+.sl-msg.new{opacity:1}
+.sl-av{width:26px;height:26px;border-radius:4px;background:#2D5A8B;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;flex-shrink:0;margin-top:1px}
+.sl-meta{display:flex;align-items:baseline;gap:6px;margin-bottom:2px}
+.sl-sender{font-size:11px;font-weight:700;color:#D1D2D3}
+.sl-ts{font-size:10px;color:#666}
+.sl-card{background:#222529;border:1px solid #2D2F34;border-left:4px solid #4A154B;border-radius:4px;padding:8px 10px;margin-bottom:4px}
+.sl-card-title{font-size:11px;font-weight:700;color:#D1D2D3;margin-bottom:3px}
+.sl-card-field{font-size:11px;color:#AAAAAB;line-height:1.6}
+.sl-card-key{color:#4A9EDB}
+.sl-card-photos{display:grid;grid-template-columns:1fr 1fr;gap:3px;margin:5px 0}
+.sl-card-ph{aspect-ratio:2/1;border-radius:3px;overflow:hidden}
+.sl-card-ph svg{width:100%;height:100%}
+.sl-card-btns{display:flex;gap:5px;margin-top:6px}
+.sl-card-btn{padding:4px 10px;border:none;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--sans)}
+.sl-card-btn.p{background:#4A154B;color:#fff}
+.sl-card-btn.g{background:#333;border:1px solid #555;color:#D1D2D3}
+.sl-reactions{display:flex;gap:4px;margin-top:4px}
+.sl-rx{background:#2D3035;border:1px solid #444;border-radius:10px;padding:2px 7px;font-size:11px;cursor:pointer}
+
+/* Email preview */
+.email-mock{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden}
+.email-mock-hdr{background:#2060C0;padding:9px 13px}
+.email-mock-title{font-size:11px;font-weight:600;color:#fff;margin-bottom:1px}
+.email-mock-sub{font-size:10px;color:rgba(255,255,255,.7)}
+.email-fields{padding:10px 13px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:4px}
+.ef-row{display:flex;gap:8px;font-size:11px}
+.ef-l{color:var(--text3);width:30px;flex-shrink:0}
+.ef-v{color:var(--text);flex:1}
+.ef-v.subject{color:var(--accent-text);font-weight:600}
+.email-body{padding:10px 13px;font-size:11px;color:var(--text2);line-height:1.7;border-bottom:1px solid var(--border)}
+.email-attach{padding:8px 13px;display:flex;gap:7px;align-items:center;background:var(--bg3)}
+.attach-chip{display:flex;align-items:center;gap:5px;padding:4px 9px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;font-size:10px;color:var(--text2)}
+.email-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:8px 13px;border-top:1px solid var(--border)}
+.email-ph{aspect-ratio:1;border-radius:5px;overflow:hidden}
+.email-ph svg{width:100%;height:100%}
+.email-footer{padding:8px 13px;display:flex;gap:6px;background:var(--surface)}
+.efbtn{padding:6px 12px;border-radius:var(--r);font-size:11px;font-weight:600;cursor:pointer;border:none;font-family:var(--sans)}
+.efbtn.p{background:var(--accent);color:#fff}
+.efbtn.g{background:var(--bg2);border:1px solid var(--border);color:var(--text2)}
+
+/* ── ZOHO DEAL VIEW ── */
+.zoho-view{flex-direction:row;overflow:hidden;width:100%;flex:1;min-height:0;height:100%}
+.zoho-left-panel{width:200px;min-width:200px;background:#fff;border-right:1px solid #E0E0E0;overflow-y:auto;flex-shrink:0;height:100%}
+.zlp-header{background:#2060C0;padding:10px 14px;display:flex;align-items:center;gap:8px}
+.zlp-logo{font-size:12px;font-weight:700;color:#fff;font-family:var(--mono)}
+.zlp-logo-sub{font-size:10px;color:rgba(255,255,255,.6)}
+.zlp-nav{padding:8px 0}
+.zlp-nav-item{display:flex;align-items:center;gap:8px;padding:8px 14px;font-size:12px;color:#444;cursor:pointer;transition:.1s}
+.zlp-nav-item:hover{background:#F5F5F5}
+.zlp-nav-item.active{background:#EBF0FF;color:#2060C0;font-weight:500}
+.zlp-nav-icon{width:16px;height:16px;border-radius:3px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:currentColor}
+.zlp-section{font-size:10px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:.07em;padding:10px 14px 4px}
+.zlp-related-item{display:flex;align-items:center;justify-content:space-between;padding:6px 14px;font-size:11px;color:#555;cursor:pointer}
+.zlp-related-item:hover{background:#F5F5F5}
+.zlp-badge{background:#2060C0;color:#fff;border-radius:10px;padding:1px 6px;font-size:9px;font-weight:700}
+.zoho-main-area{flex:1;overflow-y:auto;background:#F5F7FA;min-width:0;height:100%}
+.zoho-deal-hdr{background:#fff;border-bottom:1px solid #E0E0E0;padding:12px 20px;flex-shrink:0}
+.zdh-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.zdh-title{font-size:16px;font-weight:600;color:#222;margin-bottom:4px}
+.zdh-tag{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:10px;font-size:11px;font-weight:500}
+.zdh-tag.cargos{background:#EBF0FF;color:#2060C0;border:1px solid #B8CCFF}
+.zdh-actions{display:flex;gap:7px;flex-shrink:0}
+.zdh-btn{padding:7px 14px;border-radius:var(--r);font-size:12px;font-weight:500;cursor:pointer;border:none;font-family:var(--sans)}
+.zdh-btn.primary{background:#2060C0;color:#fff}
+.zdh-btn.ghost{background:#fff;color:#444;border:1px solid #D0D0D0}
+.zdh-btn.success{background:#0D9E6A;color:#fff}
+.transitions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.trans-label{font-size:11px;color:#888}
+.trans-btn{padding:6px 16px;border-radius:16px;font-size:12px;font-weight:500;cursor:pointer;border:none;font-family:var(--sans)}
+.trans-btn.inprogress{background:#2060C0;color:#fff}
+.trans-btn.noaction{background:#E0E0E0;color:#555}
+.state-badge{display:inline-flex;align-items:center;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600}
+.sb-new{background:#E8F0FF;color:#2060C0;border:1px solid #B8CCFF}
+.sb-prog{background:#FEF6E6;color:#B87500;border:1px solid #F0D090}
+.sb-done{background:#E6F7F1;color:#075A3C;border:1px solid #9FE0C8}
+.zoho-body-inner{padding:14px 20px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:14px;align-items:start}
+.z-section{background:#fff;border:1px solid #E0E0E0;border-radius:var(--r2);overflow:hidden;margin-bottom:12px;min-width:0;word-break:break-word}
+.z-sec-hdr{padding:8px 14px;background:#F8F8F8;border-bottom:1px solid #E0E0E0;font-size:11px;font-weight:600;color:#444;display:flex;align-items:center;justify-content:space-between}
+.z-fields-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);padding:0}
+.z-field{padding:9px 14px;border-bottom:1px solid #F0F0F0}
+.z-field:nth-child(odd){border-right:1px solid #F0F0F0}
+.z-field-l{font-size:10px;color:#888;margin-bottom:3px}
+.z-field-v{font-size:12px;color:#222;font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.z-field-v.bold{font-weight:600;color:#2060C0}
+.z-field-v.green{color:#0D9E6A;font-weight:500}
+.z-field-v.editable{border:1.5px solid #D0D0D0;border-radius:4px;padding:4px 7px;background:#FAFAFA;cursor:text;outline:none}
+.z-field-v.editable:focus{border-color:#2060C0}
+.z-full{grid-column:1/-1}
+.z-attachments{padding:10px 14px;display:flex;flex-direction:column;gap:6px}
+.z-attach-row{display:flex;align-items:center;gap:9px;padding:6px 10px;background:#F8F8F8;border:1px solid #E8E8E8;border-radius:6px;font-size:11px;color:#444;cursor:pointer}
+.z-attach-row:hover{background:#EBF0FF}
+.z-attach-icon{width:24px;height:24px;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.z-photos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:10px 14px}
+.z-ph{aspect-ratio:1;border-radius:6px;overflow:hidden;cursor:pointer}
+.z-ph:hover{outline:2px solid #2060C0}
+.z-ph svg{width:100%;height:100%}
+.z-emails{padding:0}
+.z-email-row{display:grid;grid-template-columns:20px 1fr auto auto auto auto;gap:8px;align-items:center;padding:9px 14px;border-bottom:1px solid #F0F0F0;font-size:11px;color:#444;cursor:pointer}
+.z-email-row:hover{background:#F8F8F8}
+.z-email-row:last-child{border:none}
+.z-email-subject{font-weight:500;color:#222;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.z-col-hdr{display:grid;grid-template-columns:20px 1fr auto auto auto auto;gap:8px;padding:6px 14px;background:#F8F8F8;border-bottom:1px solid #E0E0E0;font-size:10px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.05em}
+.z-other-deals{padding:10px 14px}
+.z-od-row{display:grid;grid-template-columns:120px 1fr auto auto;gap:8px;font-size:11px;color:#444;padding:6px 0;border-bottom:1px solid #F0F0F0;align-items:center}
+.z-od-row:last-child{border:none}
+.z-activity{padding:10px 14px;display:flex;flex-direction:column;gap:8px}
+.z-act-item{display:flex;gap:9px;align-items:flex-start}
+.z-act-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.z-act-txt{font-size:11px;color:#444;line-height:1.45;flex:1}
+.z-act-time{font-size:10px;color:#999;white-space:nowrap}
+.z-assign-box{background:#EBF0FF;border:1.5px solid #B8CCFF;border-radius:var(--r2);padding:10px 12px;margin-bottom:10px}
+.z-assign-title{font-size:10px;font-weight:600;color:#2060C0;margin-bottom:7px;text-transform:uppercase;letter-spacing:.06em}
+.z-mgr-row{display:flex;align-items:center;gap:8px}
+.z-mgr-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff}
+.z-mgr-name{font-size:12px;font-weight:500;color:#222}
+.z-mgr-role{font-size:10px;color:#888}
+.tg-mini{background:#17212B;border-radius:var(--r2);padding:9px 12px;margin-bottom:10px;display:flex;align-items:center;gap:9px;cursor:pointer}
+.tg-mini:hover{background:#1C2830}
+.tg-mini-icon{width:26px;height:26px;border-radius:7px;background:#2060C0;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tg-mini-txt{font-size:11px;color:#8A9BB0;flex:1;line-height:1.4}
+.tg-mini-link{font-size:10px;color:#2CA5E0;white-space:nowrap}
+.z-notes-area{width:100%;padding:8px;border:1px solid #D0D0D0;border-radius:5px;font-size:11px;color:#222;background:#FAFAFA;resize:none;outline:none;font-family:var(--sans);line-height:1.5}
+.z-notes-area:focus{border-color:#2060C0}
+
+/* ── FLOW VIEW ── */
+.flow-view{flex-direction:column;overflow-y:auto;width:100%;background:var(--bg)}
+.flow-wrap{max-width:700px;margin:0 auto;padding:24px 20px 32px;width:100%}
+.fstep{display:flex;gap:12px;position:relative;margin-bottom:10px}
+.fstep:not(:last-child) .fline{position:absolute;left:17px;top:38px;bottom:-10px;width:2px;background:var(--border2)}
+.fnum{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;z-index:1}
+.fn-npe{background:#FEF6E6;color:#6B4200;border:2px solid #EF9F27}
+.fn-sys{background:var(--accent-bg);color:var(--accent-text);border:2px solid var(--accent)}
+.fn-zoho{background:#EBF0FF;color:#2060C0;border:2px solid #2060C0}
+.fn-mgr{background:var(--green-bg);color:var(--green-text);border:2px solid var(--green)}
+.fbody{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:11px 14px}
+.fbody.npe{border-color:#EF9F27;background:#FFFBF2}
+.fbody.sys{border-color:var(--accent);background:var(--accent-bg)}
+.fbody.zoho{border-color:#B8CCFF;background:#EBF0FF}
+.fbody.mgr{border-color:#9FE0C8;background:var(--green-bg)}
+.ftitle{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.fsub{font-size:11px;color:var(--text2);line-height:1.5}
+.atag{font-size:10px;font-weight:600;padding:2px 8px;border-radius:8px}
+.at-npe{background:#FEF6E6;color:#6B4200;border:1px solid #EF9F27}
+.at-sys{background:var(--accent-bg);color:var(--accent-text);border:1px solid var(--accent)}
+.at-zoho{background:#EBF0FF;color:#2060C0;border:1px solid #B8CCFF}
+.at-mgr{background:var(--green-bg);color:var(--green-text);border:1px solid #9FE0C8}
+.chs{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+.ch{display:flex;align-items:center;gap:5px;padding:4px 9px;border-radius:var(--r);font-size:11px;font-weight:500}
+.ch-tg{background:#17212B;color:#2CA5E0}
+.ch-em{background:var(--accent-bg);color:var(--accent-text);border:1px solid #B8CCFF}
+.ch-zo{background:#EBF0FF;color:#2060C0;border:1px solid #B8CCFF}
+.subj-box{background:#1C2A37;border-radius:var(--r);padding:7px 10px;margin-top:7px;font-family:var(--mono);font-size:11px}
+.subj-l{font-size:9px;color:#6B7A8F;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.subj-v{color:#2CA5E0;font-weight:600}
+.subj-s{color:#8A9BB0;font-size:10px;margin-top:2px}
+
+/* TOAST */
+.toast-wrap{position:fixed;bottom:16px;right:16px;z-index:500;display:flex;flex-direction:column;gap:7px;pointer-events:none;width:300px}
+.toast{background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--r2);padding:11px 13px;display:flex;align-items:flex-start;gap:9px;pointer-events:all;box-shadow:var(--shadow-md);animation:tIn .3s cubic-bezier(.34,1.1,.64,1)}
+.toast.t-green{border-left:4px solid var(--green)}
+.toast.t-blue{border-left:4px solid var(--accent)}
+@keyframes tIn{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
+.t-ico{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.t-body{flex:1}
+.t-ttl{font-size:11px;font-weight:600;color:var(--text);margin-bottom:1px}
+.t-msg{font-size:10px;color:var(--text2);line-height:1.4}
+.t-x{background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:0;line-height:1;flex-shrink:0}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="logo">ВАРІАНТ B · CARGOS + ZOHO</span>
+  <div class="top-nav">
+    <div class="tnav on" id="tn-push" onclick="switchView('push')">
+      <svg width="12" height="12" fill="#4A154B" viewBox="0 0 24 24"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/><path d="M14 9.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"/><path d="M10 14.5c0 .83-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5S2.67 13 3.5 13h5c.83 0 1.5.67 1.5 1.5z"/></svg>
+      Slack + Email
+    </div>
+    <div class="tnav" id="tn-zoho" onclick="switchView('zoho')">
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      Zoho Deal
+    </div>
+    <div class="tnav" id="tn-flow" onclick="switchView('flow')">
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      Флоу
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span style="font-size:12px;color:var(--text2)">Шимко Олег</span>
+    <div class="av">ШО</div>
+  </div>
+</div>
+
+<!-- ── PUSH + EMAIL ── -->
+<div class="view on" id="view-push">
+  <div class="push-view">
+    <div class="push-wrap">
+      <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:3px">Slack + Email</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:20px">Два канали надсилаються одночасно після сканування на НПЄ</div>
+      <div class="pe-grid">
+
+        <!-- LEFT: Slack -->
+        <div>
+          <div class="pe-section-title" style="display:flex;align-items:center;gap:6px">
+            <svg width="11" height="11" fill="#4A154B" viewBox="0 0 24 24"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/><path d="M14 9.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"/><path d="M10 14.5c0 .83-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5S2.67 13 3.5 13h5c.83 0 1.5.67 1.5 1.5z"/></svg>
+            Slack · #ecom-unidentified
+          </div>
+          <div class="sl-wrap">
+            <!-- Sidebar -->
+            <div class="sl-sidebar">
+              <div class="sl-ws-name">GES Workspace</div>
+              <div class="sl-ch"><span style="opacity:.5">#</span> general</div>
+              <div class="sl-ch active"><span style="opacity:.5">#</span> ecom-unidentified</div>
+              <div class="sl-ch"><span style="opacity:.5">#</span> ecom-team</div>
+              <div class="sl-ch"><span style="opacity:.5">#</span> support</div>
+            </div>
+            <!-- Main -->
+            <div class="sl-main">
+              <div class="sl-ch-hdr">
+                <div class="sl-ch-name"># ecom-unidentified</div>
+                <div class="sl-ch-desc">8 учасників</div>
+              </div>
+              <div class="sl-msgs">
+                <div class="sl-divider"><div class="sl-divider-line"></div><span class="sl-divider-txt">Сьогодні</span><div class="sl-divider-line"></div></div>
+                <!-- old -->
+                <div class="sl-msg">
+                  <div class="sl-av">CO</div>
+                  <div>
+                    <div class="sl-meta"><span class="sl-sender">Cargos OS Bot</span><span class="sl-ts">14:31</span></div>
+                    <div class="sl-card" style="opacity:.7">
+                      <div class="sl-card-title">Нерозпізнаний вантаж · НПЄ</div>
+                      <div class="sl-card-field">Yanwen · B-2 · клієнт невідомий</div>
+                    </div>
+                  </div>
+                </div>
+                <!-- new -->
+                <div class="sl-msg new">
+                  <div class="sl-av">CO</div>
+                  <div style="flex:1;min-width:0">
+                    <div class="sl-meta"><span class="sl-sender">Cargos OS Bot</span><span class="sl-ts">16:01</span></div>
+                    <div class="sl-card">
+                      <div class="sl-card-title">🚨 Нерозпізнаний вантаж є-ком</div>
+                      <div class="sl-card-field">
+                        <span class="sl-card-key">Призначено:</span> Шимко Олег<br>
+                        <span class="sl-card-key">Підрядник:</span> DHL &nbsp;·&nbsp; <span class="sl-card-key">Сектор:</span> A-2<br>
+                        <span class="sl-card-key">TMP ID:</span> <span style="font-family:var(--mono);color:#79B8FF">#TMP-4960</span><br>
+                        <span class="sl-card-key">AI підказка:</span> <span style="color:#6FC870">Liki24 · 91%</span>
+                      </div>
+                      <div class="sl-card-photos">
+                        <div class="sl-card-ph"><svg viewBox="0 0 80 40"><rect width="80" height="40" fill="#2A3040"/><rect x="8" y="8" width="64" height="26" rx="2" fill="#3A4050"/><rect x="11" y="12" width="28" height="4" rx="1" fill="#5A6080"/></svg></div>
+                        <div class="sl-card-ph"><svg viewBox="0 0 80 40"><rect width="80" height="40" fill="#2A3040"/><rect x="6" y="5" width="68" height="32" rx="2" fill="#3A4050"/><line x1="10" y1="21" x2="70" y2="21" stroke="#4A5060"/></svg></div>
+                      </div>
+                      <div class="sl-card-btns">
+                        <button class="sl-card-btn p" onclick="switchView('zoho');showToast('Zoho Deal','Відкрито Deal #TMP-4960','blue')">Відкрити в Zoho</button>
+                        <button class="sl-card-btn g" onclick="showToast('Взяв в роботу','Шимко Олег · #TMP-4960','blue')">Взяти в роботу</button>
+                      </div>
+                    </div>
+                    <div class="sl-reactions"><span class="sl-rx">👀 1</span><span class="sl-rx">✅ 0</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="font-size:10px;color:var(--text3);margin-top:8px;line-height:1.5">Кнопка «Відкрити в Zoho» веде прямо на Deal · «Взяти в роботу» міняє Stage</div>
+        </div>
+
+        <!-- RIGHT: Email -->
+        <div>
+          <div class="pe-section-title">Email на загальну пошту</div>
+          <div class="email-mock">
+            <div class="email-mock-hdr">
+              <div class="email-mock-title">support@novaposhta.ua</div>
+              <div class="email-mock-sub">Загальна пошта підтримки</div>
+            </div>
+            <div class="email-fields">
+              <div class="ef-row"><span class="ef-l">Від:</span><span class="ef-v">noreply@cargos.ua</span></div>
+              <div class="ef-row"><span class="ef-l">До:</span><span class="ef-v">support@novaposhta.ua</span></div>
+              <div class="ef-row"><span class="ef-l">Тема:</span><span class="ef-v subject">[Шимко Олег] Нерозпізнаний вантаж #TMP-4960 · НПЄ · DHL · A-2</span></div>
+            </div>
+            <div class="email-body">
+              Доброго дня,<br><br>
+              На складі НПЄ отримано вантаж без ідентифікації.<br><br>
+              <strong>TMP ID:</strong> #TMP-4960<br>
+              <strong>Підрядник:</strong> DHL &nbsp;·&nbsp; <strong>Сектор:</strong> A-2<br>
+              <strong>Час:</strong> 16:01 · сьогодні<br>
+              <strong>Призначено:</strong> Шимко Олег<br><br>
+              Будь ласка, зверніться до відповідального менеджера або відкрийте Zoho Deal за посиланням.
+            </div>
+            <div class="email-photos">
+              <div class="email-ph"><svg viewBox="0 0 60 60"><rect width="60" height="60" fill="#EEF0F6"/><rect x="10" y="18" width="40" height="25" rx="2" fill="#D8DCE8"/><rect x="14" y="22" width="20" height="4" rx="1" fill="#8890AA"/></svg></div>
+              <div class="email-ph"><svg viewBox="0 0 60 60"><rect width="60" height="60" fill="#EEF0F6"/><rect x="8" y="12" width="44" height="36" rx="3" fill="#D8DCE8"/><line x1="12" y1="30" x2="48" y2="30" stroke="#C2C8D8"/></svg></div>
+              <div class="email-ph"><svg viewBox="0 0 60 60"><rect width="60" height="60" fill="#EEF0F6"/><rect x="8" y="12" width="44" height="36" rx="3" fill="#D8DCE8"/><rect x="18" y="20" width="24" height="20" rx="2" fill="#EEF0F6" stroke="#C2C8D8"/></svg></div>
+            </div>
+            <div class="email-attach">
+              <div class="attach-chip"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>image001.png</div>
+              <div class="attach-chip"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>image002.png</div>
+            </div>
+            <div class="email-footer">
+              <button class="efbtn g" onclick="showToast('Лист скопійовано','Відкрийте в Gmail або Outlook','blue')">Відкрити в пошті</button>
+            </div>
+          </div>
+          <div style="font-size:10px;color:var(--text3);margin-top:8px;line-height:1.5">Менеджер вказаний в subject — лист не загубиться серед інших запитів на загальній пошті</div>
+        </div>
+
+      </div>
+
+      <!-- SLACK REMOVED -->
+      <div style="display:none">
+        <div class="pe-section-title" style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+          <span style="display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;color:#4A154B;text-transform:uppercase;letter-spacing:.07em">
+            <svg width="12" height="12" fill="#4A154B" viewBox="0 0 24 24"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/><path d="M14 9.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"/><path d="M10 14.5c0 .83-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5S2.67 13 3.5 13h5c.83 0 1.5.67 1.5 1.5z"/></svg>
+            Slack
+          </span>
+          <span style="font-size:10px;font-weight:500;color:#fff;background:#4A154B;padding:1px 7px;border-radius:8px">beta</span>
+          <span style="font-size:10px;color:var(--text3)">— якщо підключити до Zoho CRM</span>
+          <span style="flex:1;height:0.5px;background:var(--border)"></span>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+
+          <!-- LEFT: Slack channel message -->
+          <div>
+            <div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:10px">Повідомлення в каналі</div>
+            <div style="background:#1A1D21;border-radius:12px;overflow:hidden">
+              <!-- Slack topbar -->
+              <div style="background:#19171D;padding:9px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #333">
+                <div style="width:26px;height:26px;border-radius:6px;background:#4A154B;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                  <svg width="13" height="13" fill="#fff" viewBox="0 0 24 24"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/><path d="M14 9.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"/><path d="M10 14.5c0 .83-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5S2.67 13 3.5 13h5c.83 0 1.5.67 1.5 1.5z"/></svg>
+                </div>
+                <div>
+                  <div style="font-size:12px;font-weight:600;color:#D1D2D3"># ecom-unidentified</div>
+                  <div style="font-size:10px;color:#888">8 учасників</div>
+                </div>
+              </div>
+              <!-- Messages -->
+              <div style="padding:12px 14px;display:flex;flex-direction:column;gap:10px">
+                <div style="display:flex;align-items:center;gap:6px;justify-content:center">
+                  <div style="flex:1;height:0.5px;background:#333"></div>
+                  <span style="font-size:10px;color:#666">Сьогодні</span>
+                  <div style="flex:1;height:0.5px;background:#333"></div>
+                </div>
+                <!-- Old message -->
+                <div style="display:flex;gap:9px;opacity:.5">
+                  <div style="width:30px;height:30px;border-radius:6px;background:#2D5A8B;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:9px;font-weight:700;color:#fff">CO</div>
+                  <div>
+                    <div style="display:flex;align-items:baseline;gap:7px;margin-bottom:3px">
+                      <span style="font-size:12px;font-weight:700;color:#D1D2D3">Cargos OS Bot</span>
+                      <span style="font-size:10px;color:#666">14:31</span>
+                    </div>
+                    <div style="background:#222529;border-radius:4px;padding:9px 11px;border-left:3px solid #4A154B">
+                      <div style="font-size:11px;color:#888;margin-bottom:3px">Нерозпізнаний вантаж</div>
+                      <div style="font-size:11px;color:#D1D2D3">Yanwen · B-2 · клієнт невідомий</div>
+                    </div>
+                  </div>
+                </div>
+                <!-- New message with attachment -->
+                <div style="display:flex;gap:9px">
+                  <div style="width:30px;height:30px;border-radius:6px;background:#2D5A8B;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:9px;font-weight:700;color:#fff">CO</div>
+                  <div style="flex:1;min-width:0">
+                    <div style="display:flex;align-items:baseline;gap:7px;margin-bottom:4px">
+                      <span style="font-size:12px;font-weight:700;color:#D1D2D3">Cargos OS Bot</span>
+                      <span style="font-size:10px;color:#666">16:01</span>
+                    </div>
+                    <!-- Slack attachment card -->
+                    <div style="background:#222529;border:1px solid #333;border-radius:6px;border-left:4px solid #4A154B;padding:10px 12px;margin-bottom:6px">
+                      <div style="font-size:11px;font-weight:700;color:#D1D2D3;margin-bottom:4px">🚨 Нерозпізнаний вантаж є-ком</div>
+                      <div style="font-size:11px;color:#AAAAAB;line-height:1.6;margin-bottom:7px">
+                        <span style="color:#4A9EDB">*Призначено:*</span> Шимко Олег<br>
+                        <span style="color:#4A9EDB">*Підрядник:*</span> DHL &nbsp;·&nbsp; <span style="color:#4A9EDB">*Сектор:*</span> A-2<br>
+                        <span style="color:#4A9EDB">*TMP ID:*</span> <span style="font-family:var(--mono);color:#79B8FF">#TMP-4960</span><br>
+                        <span style="color:#4A9EDB">*AI підказка:*</span> <span style="color:#6FC870">Liki24 · 91%</span>
+                      </div>
+                      <!-- mini photos -->
+                      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:8px">
+                        <div style="aspect-ratio:2/1;border-radius:4px;overflow:hidden"><svg viewBox="0 0 80 40"><rect width="80" height="40" fill="#2A3040"/><rect x="8" y="10" width="64" height="22" rx="2" fill="#3A4050"/><rect x="11" y="13" width="28" height="4" rx="1" fill="#5A6080"/></svg></div>
+                        <div style="aspect-ratio:2/1;border-radius:4px;overflow:hidden"><svg viewBox="0 0 80 40"><rect width="80" height="40" fill="#2A3040"/><rect x="6" y="6" width="68" height="30" rx="2" fill="#3A4050"/><line x1="10" y1="21" x2="70" y2="21" stroke="#4A5060"/></svg></div>
+                      </div>
+                      <!-- Action buttons -->
+                      <div style="display:flex;gap:6px">
+                        <button onclick="showToast('Zoho Deal','Відкрито Deal #TMP-4960 в Zoho CRM','blue')" style="padding:5px 12px;background:#4A154B;border:none;border-radius:4px;font-size:11px;font-weight:600;color:#fff;cursor:pointer;font-family:var(--sans)">Відкрити в Zoho</button>
+                        <button onclick="showToast('Взяв в роботу','Шимко Олег · #TMP-4960','blue')" style="padding:5px 12px;background:#333;border:1px solid #555;border-radius:4px;font-size:11px;font-weight:600;color:#D1D2D3;cursor:pointer;font-family:var(--sans)">Взяти в роботу</button>
+                      </div>
+                    </div>
+                    <!-- Reaction -->
+                    <div style="display:flex;gap:5px;align-items:center">
+                      <span style="background:#2D3035;border:1px solid #444;border-radius:12px;padding:2px 8px;font-size:11px;cursor:pointer">👀 1</span>
+                      <span style="background:#2D3035;border:1px solid #444;border-radius:12px;padding:2px 8px;font-size:11px;cursor:pointer">✅ 0</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: Zoho + Slack integration info -->
+          <div>
+            <div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:10px">Як підключити до Zoho</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+
+              <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:12px 14px">
+                <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:6px">
+                  <span style="width:18px;height:18px;border-radius:50%;background:var(--accent-bg);color:var(--accent-text);display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0">1</span>
+                  Zoho Flow або Zoho CRM Webhooks
+                </div>
+                <div style="font-size:11px;color:var(--text2);line-height:1.6">При створенні Deal → Zoho Flow надсилає POST-запит до Slack Incoming Webhook. Налаштовується без коду в Zoho Flow за 30 хв.</div>
+              </div>
+
+              <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:12px 14px">
+                <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:6px">
+                  <span style="width:18px;height:18px;border-radius:50%;background:var(--accent-bg);color:var(--accent-text);display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0">2</span>
+                  Slack App для Zoho CRM (офіційна)
+                </div>
+                <div style="font-size:11px;color:var(--text2);line-height:1.6">Zoho Marketplace має офіційну Slack-інтеграцію. Дозволяє надсилати сповіщення про Deal, змінювати Stage прямо зі Slack, отримувати updates в канал.</div>
+              </div>
+
+              <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:12px 14px">
+                <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:6px">
+                  <span style="width:18px;height:18px;border-radius:50%;background:var(--accent-bg);color:var(--accent-text);display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0">3</span>
+                  Що отримуємо
+                </div>
+                <div style="font-size:11px;color:var(--text2);line-height:1.7">
+                  <span style="display:block;padding-left:10px;position:relative"><span style="position:absolute;left:2px;top:7px;width:4px;height:4px;border-radius:50%;background:var(--green);display:block"></span>Кнопка «Відкрити в Zoho» веде прямо на Deal</span>
+                  <span style="display:block;padding-left:10px;position:relative"><span style="position:absolute;left:2px;top:7px;width:4px;height:4px;border-radius:50%;background:var(--green);display:block"></span>«Взяти в роботу» — змінює Stage в Zoho</span>
+                  <span style="display:block;padding-left:10px;position:relative"><span style="position:absolute;left:2px;top:7px;width:4px;height:4px;border-radius:50%;background:var(--green);display:block"></span>Фото вкладені прямо в Slack-картку</span>
+                  <span style="display:block;padding-left:10px;position:relative"><span style="position:absolute;left:2px;top:7px;width:4px;height:4px;border-radius:50%;background:var(--warn);display:block"></span>Beta — потребує тестування з реальним Zoho</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── ZOHO DEAL ── -->
+<div class="view" id="view-zoho" style="flex-direction:row;overflow:hidden">
+
+  <!-- Left sidebar -->
+  <div style="width:196px;min-width:196px;flex-shrink:0;background:#fff;border-right:1px solid #DDD;overflow-y:auto;display:flex;flex-direction:column">
+    <div style="background:#2060C0;padding:9px 13px">
+      <div style="font-size:13px;font-weight:700;color:#fff;font-family:var(--mono)">ZOHO CRM</div>
+      <div style="font-size:10px;color:rgba(255,255,255,.65)">GES</div>
+    </div>
+    <div style="padding:6px 0;border-bottom:1px solid #EEE">
+      <div class="zlp-nav-item"><div class="zlp-nav-icon">🏠</div>Home</div>
+      <div class="zlp-nav-item"><div class="zlp-nav-icon">📊</div>Reports</div>
+      <div class="zlp-nav-item active"><div class="zlp-nav-icon">🤝</div>Deals</div>
+      <div class="zlp-nav-item"><div class="zlp-nav-icon">⚙️</div>GES Processes</div>
+      <div class="zlp-nav-item"><div class="zlp-nav-icon">✅</div>Tasks</div>
+      <div class="zlp-nav-item"><div class="zlp-nav-icon">⏱</div>Time logs</div>
+    </div>
+    <div style="padding:10px 14px 4px;font-size:10px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.07em">Related List</div>
+    <div class="zlp-related-item">Notes</div>
+    <div class="zlp-related-item">Emails <span class="zlp-badge">1</span></div>
+    <div class="zlp-related-item">Attachments <span class="zlp-badge">2</span></div>
+    <div class="zlp-related-item">Other users deals <span class="zlp-badge">1</span></div>
+    <div class="zlp-related-item">GES Processes</div>
+    <div class="zlp-related-item">Time logs</div>
+    <div class="zlp-related-item">Stage History <span class="zlp-badge">1</span></div>
+    <div style="padding:10px 14px 4px;font-size:10px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.07em">Sales Summary</div>
+    <div style="padding:4px 14px 10px;font-size:10px;color:#999;line-height:1.9">Lead Conversion Time: NA<br>Sales Cycle Duration: 0<br>Overall Sales Duration: 0</div>
+  </div>
+
+  <!-- Main content -->
+  <div style="flex:1;min-width:0;overflow-y:auto;background:#F5F7FA;display:flex;flex-direction:column">
+
+    <!-- Deal header -->
+    <div style="background:#fff;border-bottom:1px solid #DDD;padding:13px 20px;flex-shrink:0">
+      <div style="font-size:10px;color:#999;margin-bottom:5px">Deals › Нерозпізнаний вантаж є-ком</div>
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px;flex-wrap:wrap">
+        <div>
+          <div style="font-size:15px;font-weight:600;color:#222;margin-bottom:5px">RE: NP-TMP-4960_НПЄ_DHL | 2026-04-16 16:01</div>
+          <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+            <span style="background:#EBF0FF;color:#2060C0;border:1px solid #B8CCFF;padding:2px 9px;border-radius:10px;font-size:11px;font-weight:500">Email - GES</span>
+            <span id="state-badge" style="background:#E8F0FF;color:#2060C0;border:1px solid #B8CCFF;padding:3px 11px;border-radius:11px;font-size:11px;font-weight:600">New Request</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:7px;flex-shrink:0">
+          <button class="zdh-btn ghost" onclick="sendEmailFromZoho()">Send Email</button>
+          <button class="zdh-btn ghost" onclick="showToast('Edit','Відкрито форму редагування','blue')">Edit</button>
+          <button class="zdh-btn ghost" onclick="showToast('Mass Deal','','blue')">Mass Deal</button>
+          <button class="zdh-btn success" id="close-btn" onclick="stageDone()">&#10003; In Progress</button>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span style="font-size:11px;color:#888">Current State: <strong id="current-state-lbl" style="color:#2060C0">New Request</strong></span>
+        <span style="font-size:11px;color:#888;margin-left:8px">Transitions:</span>
+        <button class="trans-btn inprogress" onclick="setInProgress()">In Progress</button>
+        <button class="trans-btn noaction" onclick="showToast('No Action Needed','Deal позначено','blue')">No Action Needed</button>
+      </div>
+    </div>
+
+    <!-- Body: two columns -->
+    <div style="padding:14px 20px;display:grid;grid-template-columns:minmax(0,1fr) 256px;gap:14px;align-items:start;flex:1">
+
+      <!-- Left column -->
+      <div>
+        <!-- Non-ecom warning (hidden) -->
+        <div id="non-ecom-banner" style="display:none;background:var(--accent-bg);border:1.5px solid #B8CCFF;border-radius:var(--r2);padding:11px 14px;margin-bottom:12px">
+          <div style="font-size:12px;font-weight:600;color:var(--accent-text);margin-bottom:6px">Шаблон передачі — НЕ є-ком вантаж</div>
+          <div style="font-size:11px;color:var(--accent-text);line-height:1.7">1. Визначити тип продукту за фото та підрядником<br>2. Знайти відповідальний підрозділ (не є-ком відділ)<br>3. Перенаправити Deal або вирішити самостійно<br>4. Зафіксувати результат у Notes та закрити Deal</div>
+        </div>
+        <!-- Slack notification note -->
+        <div style="display:flex;gap:7px;margin-bottom:12px">
+          <div class="tg-mini" onclick="switchView('push')" style="flex:1;margin-bottom:0;background:#19171D">
+            <div class="tg-mini-icon" style="background:#4A154B"><svg width="13" height="13" fill="#fff" viewBox="0 0 24 24"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/><path d="M14 9.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"/><path d="M10 14.5c0 .83-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5S2.67 13 3.5 13h5c.83 0 1.5.67 1.5 1.5z"/></svg></div>
+            <div class="tg-mini-txt" style="color:#C8A0E0">Slack · #ecom-unidentified · Шимко Олег · 16:01</div>
+            <span class="tg-mini-link" style="color:#9B59B6">&#8594;</span>
+          </div>
+        </div>
+
+        <!-- Overview / Timeline tabs -->
+        <div style="display:flex;gap:0;margin-bottom:12px">
+          <div id="tab-overview" onclick="setTab('overview')" style="padding:6px 18px;font-size:12px;font-weight:500;cursor:pointer;border-bottom:2px solid #2060C0;color:#2060C0">Overview</div>
+          <div id="tab-timeline" onclick="setTab('timeline')" style="padding:6px 18px;font-size:12px;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;color:#888">Timeline</div>
+          <div style="flex:1;border-bottom:2px solid #EEE"></div>
+          <div style="font-size:10px;color:#999;padding:6px 0;border-bottom:2px solid #EEE">Last Update: 05:15 PM</div>
+        </div>
+
+        <!-- Deal Information -->
+        <div class="z-section">
+          <div class="z-sec-hdr">Deal Information <span style="font-size:10px;color:#2060C0;font-weight:400;margin-left:8px">від Cargos OS · авто</span></div>
+          <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)">
+            <div class="z-field"><div class="z-field-l">Deal Name</div><div class="z-field-v" style="font-size:11px;white-space:normal">RE: NP-TMP-4960 | 2026-04-16 16:01</div></div>
+            <div class="z-field"><div class="z-field-l">Stage</div><div id="stage-field" class="z-field-v bold">New Request</div></div>
+            <div class="z-field"><div class="z-field-l">Deal Owner</div><div class="z-field-v bold">Шимко Олег</div></div>
+            <div class="z-field"><div class="z-field-l">Priority</div><div class="z-field-v"><span style="background:#E8E8E8;color:#555;padding:2px 9px;border-radius:9px;font-size:11px">Normal</span></div></div>
+            <div class="z-field"><div class="z-field-l">Request By</div><div class="z-field-v">Client</div></div>
+            <div class="z-field"><div class="z-field-l">Department</div><div class="z-field-v">GES</div></div>
+            <div class="z-field"><div class="z-field-l">Tracking Number</div><div class="z-field-v bold" style="font-family:var(--mono);color:#2060C0">#TMP-4960</div></div>
+            <div class="z-field"><div class="z-field-l">Deal Source</div><div class="z-field-v">Cargos OS</div></div>
+            <div class="z-field"><div class="z-field-l">Підрядник</div><div class="z-field-v">DHL</div></div>
+            <div class="z-field"><div class="z-field-l">Сектор НПЄ</div><div class="z-field-v">A-2</div></div>
+            <div class="z-field" style="grid-column:1/-1"><div class="z-field-l">Клієнт E-com <span style="color:#D63B3B">*</span></div><input id="z-client" class="z-field-v editable" type="text" value="Liki24" placeholder="Введіть клієнта..." oninput="onClientChange(this.value)" style="width:220px"></div>
+            <div class="z-field"><div class="z-field-l">Тип вантажу</div><select id="z-type" onchange="onTypeChange(this.value)" style="border:1px solid #D0D0D0;border-radius:4px;padding:4px 7px;font-size:12px;color:#222;background:#FAFAFA;font-family:var(--sans);cursor:pointer;width:100%"><option value="ecom">Є-ком</option><option value="other">Не є-ком → черговий</option></select></div>
+  <div class="z-field" style="grid-column:1/-1"><div class="z-field-l">Our Response</div><input id="z-response" class="z-field-v editable" type="text" placeholder="Відповідь менеджера..." style="width:100%"></div>
+          </div>
+        </div>
+
+        <!-- Photos -->
+        <div class="z-section">
+          <div class="z-sec-hdr">Фото зі складу НПЄ <span style="font-size:10px;color:#888;font-weight:400">Attachments (2)</span></div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:10px 14px">
+            <div class="z-ph" onclick="showToast('Фото','Відкрито','blue')"><svg viewBox="0 0 60 60"><rect width="60" height="60" fill="#EEF0F6"/><rect x="10" y="18" width="40" height="25" rx="2" fill="#D8DCE8"/><rect x="14" y="22" width="20" height="4" rx="1" fill="#8890AA"/><rect x="14" y="28" width="32" height="2" rx="1" fill="#C2C8D8"/></svg></div>
+            <div class="z-ph" onclick="showToast('Фото','Відкрито','blue')"><svg viewBox="0 0 60 60"><rect width="60" height="60" fill="#EEF0F6"/><rect x="8" y="12" width="44" height="36" rx="3" fill="#D8DCE8"/><line x1="12" y1="30" x2="48" y2="30" stroke="#C2C8D8"/><line x1="30" y1="16" x2="30" y2="44" stroke="#C2C8D8"/></svg></div>
+            <div class="z-ph" onclick="showToast('Фото','Відкрито','blue')"><svg viewBox="0 0 60 60"><rect width="60" height="60" fill="#EEF0F6"/><rect x="8" y="12" width="44" height="36" rx="3" fill="#D8DCE8"/><rect x="18" y="20" width="24" height="20" rx="2" fill="#EEF0F6" stroke="#C2C8D8"/></svg></div>
+          </div>
+        </div>
+
+        <!-- Emails -->
+        <div class="z-section">
+          <div class="z-sec-hdr">Emails <button onclick="sendEmailFromZoho()" style="font-size:10px;padding:3px 10px;border:1px solid #2060C0;border-radius:5px;background:#fff;cursor:pointer;color:#2060C0;font-family:var(--sans)">Compose Email</button></div>
+          <div style="display:flex;gap:0;padding:0 14px;border-bottom:1px solid #EEE">
+            <div style="padding:7px 14px 7px 0;font-size:12px;color:#2060C0;border-bottom:2px solid #2060C0;cursor:pointer">Mails</div>
+            <div style="padding:7px 14px;font-size:12px;color:#888;cursor:pointer">Drafts</div>
+            <div style="padding:7px 14px;font-size:12px;color:#888;cursor:pointer">Scheduled</div>
+          </div>
+          <div style="display:grid;grid-template-columns:24px 1fr 80px 70px 110px 70px;gap:6px;padding:7px 14px;background:#F8F8F8;border-bottom:1px solid #EEE;font-size:10px;font-weight:600;color:#888;text-transform:uppercase">
+            <span></span><span>Subject</span><span>Date</span><span>Source</span><span>Sent By</span><span>Status</span>
+          </div>
+          <div id="emails-list">
+            <div style="display:grid;grid-template-columns:24px 1fr 80px 70px 110px 70px;gap:6px;padding:9px 14px;font-size:11px;color:#444;cursor:pointer;border-bottom:1px solid #F5F5F5;align-items:center" onmouseenter="this.style.background='#F8F8F8'" onmouseleave="this.style.background=''">
+              <input type="checkbox">
+              <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500;color:#222">RE: NP-TMP-4960_НПЄ_DHL | 2026-04-16 ···</span>
+              <span style="color:#999">5:15 PM</span>
+              <span>External</span>
+              <span style="color:#2060C0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">andrei@veloxsh...</span>
+              <span style="color:#888">Received</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Attachments -->
+        <div class="z-section">
+          <div class="z-sec-hdr">Attachments <button onclick="showToast('Attach','Відкрито завантаження','blue')" style="font-size:10px;padding:3px 10px;border:1px solid #DDD;border-radius:5px;background:#fff;cursor:pointer;color:#444;font-family:var(--sans)">Attach ▾</button></div>
+          <div style="padding:10px 14px;display:flex;flex-direction:column;gap:6px">
+            <div style="display:flex;align-items:center;gap:9px;padding:7px 10px;background:#F8F8F8;border:1px solid #EEE;border-radius:6px;font-size:11px;cursor:pointer" onmouseenter="this.style.background='#EBF0FF'" onmouseleave="this.style.background='#F8F8F8'">
+              <div style="width:26px;height:26px;border-radius:5px;background:#E8F0FF;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="12" height="12" fill="none" stroke="#2060C0" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 13h4"/></svg></div>
+              <span style="flex:1">Weight_and_Dims.xlsx</span>
+              <span style="color:#999;font-size:10px">Apr 16, 2026 05:15 PM</span>
+              <span style="color:#999;font-size:10px">–</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:9px;padding:7px 10px;background:#F8F8F8;border:1px solid #EEE;border-radius:6px;font-size:11px;cursor:pointer" onmouseenter="this.style.background='#EBF0FF'" onmouseleave="this.style.background='#F8F8F8'">
+              <div style="width:26px;height:26px;border-radius:5px;background:#FFF0ED;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="12" height="12" fill="none" stroke="#E8340A" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+              <span style="flex:1">image001.png</span>
+              <span style="color:#999;font-size:10px">Apr 16, 2026 05:15 PM</span>
+              <span style="color:#999;font-size:10px">–</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Other users deals -->
+        <div class="z-section">
+          <div class="z-sec-hdr">Other users deals
+            <div style="display:flex;gap:6px">
+              <button onclick="showToast('Assign','','blue')" style="font-size:10px;padding:3px 10px;border:1px solid #DDD;border-radius:5px;background:#fff;cursor:pointer;color:#444;font-family:var(--sans)">Assign</button>
+              <button onclick="showToast('Edit','','blue')" style="font-size:10px;padding:3px 10px;border:1px solid #DDD;border-radius:5px;background:#fff;cursor:pointer;color:#444;font-family:var(--sans)">Edit</button>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:130px 1fr 110px 130px;gap:6px;padding:7px 14px;background:#F8F8F8;border-bottom:1px solid #EEE;font-size:10px;font-weight:600;color:#888;text-transform:uppercase">
+            <span>Created Time</span><span>Deal Name</span><span>Stage</span><span>Deal Owner</span>
+          </div>
+          <div style="display:grid;grid-template-columns:130px 1fr 110px 130px;gap:6px;padding:9px 14px;font-size:11px;color:#444;align-items:center;border-bottom:1px solid #F5F5F5">
+            <span style="color:#888;font-size:10px">Apr 16, 2026<br>05:15 PM</span>
+            <span style="color:#2060C0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">RE: NP-TMP-4960_НПЄ_DHL | 2026-04-1…</span>
+            <span><span style="background:#E8F0FF;color:#2060C0;border:1px solid #B8CCFF;padding:2px 8px;border-radius:9px;font-size:10px;font-weight:600">New Request</span></span>
+            <span>Viktoriia Slyvka</span>
+          </div>
+        </div>
+
+        <!-- GES Processes -->
+        <div class="z-section">
+          <div class="z-sec-hdr">GES Processes
+            <div style="display:flex;gap:6px">
+              <button onclick="showToast('Assign','','blue')" style="font-size:10px;padding:3px 10px;border:1px solid #DDD;border-radius:5px;background:#fff;cursor:pointer;color:#444;font-family:var(--sans)">Assign</button>
+              <button onclick="showToast('New Process','','blue')" style="font-size:10px;padding:3px 10px;border:1px solid #DDD;border-radius:5px;background:#fff;cursor:pointer;color:#444;font-family:var(--sans)">New</button>
+            </div>
+          </div>
+          <div style="padding:12px 14px;font-size:11px;color:#999;text-align:center">Процесів не призначено</div>
+        </div>
+
+        <!-- Stage History -->
+        <div class="z-section">
+          <div class="z-sec-hdr">Stage History</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:7px 14px;background:#F8F8F8;border-bottom:1px solid #EEE;font-size:10px;font-weight:600;color:#888;text-transform:uppercase">
+            <span>Stage</span><span>Modified By</span><span>Modified Time</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:9px 14px;font-size:11px;color:#444">
+            <span>New Request</span><span>Admin Zoho</span><span style="color:#888">Apr 16, 2026 05:15 PM</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right sidebar -->
+      <div>
+        <div class="z-assign-box" style="margin-bottom:10px">
+          <div class="z-assign-title">Призначено · Cargos routing</div>
+          <div class="z-mgr-row">
+            <div class="z-mgr-av" style="background:#1A5CFF">ШО</div>
+            <div><div class="z-mgr-name">Шимко Олег</div><div class="z-mgr-role">Менеджер є-ком · Liki24</div></div>
+          </div>
+        </div>
+
+        <div class="z-section" style="margin-bottom:10px">
+          <div class="z-sec-hdr">Activity</div>
+          <div class="z-activity">
+            <div class="z-act-item"><div class="z-act-dot" style="background:#2060C0"></div><div style="flex:1"><div class="z-act-txt">Deal створено · Cargos OS</div><div class="z-act-time">16:01</div></div></div>
+            <div class="z-act-item"><div class="z-act-dot" style="background:#9B59B6"></div><div style="flex:1"><div class="z-act-txt">Slack #ecom-unidentified надіслано</div><div class="z-act-time">16:01</div></div></div>
+            <div class="z-act-item"><div class="z-act-dot" style="background:#2060C0"></div><div style="flex:1"><div class="z-act-txt">Email [Шимко Олег] надіслано на загальну пошту</div><div class="z-act-time">16:01</div></div></div>
+            <div class="z-act-item" id="act-prog" style="display:none"><div class="z-act-dot" style="background:#B87500"></div><div style="flex:1"><div class="z-act-txt">Stage → In Progress</div><div class="z-act-time">щойно</div></div></div>
+            <div class="z-act-item" id="act-client" style="display:none"><div class="z-act-dot" style="background:#0D9E6A"></div><div style="flex:1"><div class="z-act-txt" id="act-client-txt">Клієнт вказано</div><div class="z-act-time">щойно</div></div></div>
+            <div class="z-act-item" id="act-email" style="display:none"><div class="z-act-dot" style="background:#0D9E6A"></div><div style="flex:1"><div class="z-act-txt">Email клієнту надіслано</div><div class="z-act-time">щойно</div></div></div>
+            <div class="z-act-item" id="act-done" style="display:none"><div class="z-act-dot" style="background:#0D9E6A"></div><div style="flex:1"><div class="z-act-txt" style="color:#0D9E6A;font-weight:600">Deal закрито ✓</div><div class="z-act-time">щойно</div></div></div>
+          </div>
+        </div>
+
+        <div class="z-section">
+          <div class="z-sec-hdr">Notes</div>
+          <div style="padding:10px">
+            <textarea class="z-notes-area" rows="3" placeholder="Add a note..."></textarea>
+            <button onclick="showToast('Note saved','Примітку збережено','green')" style="margin-top:5px;padding:5px 12px;border:1px solid #D0D0D0;border-radius:5px;font-size:11px;cursor:pointer;background:#fff;color:#444;font-family:var(--sans)">Save</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── FLOW VIEW ── -->
+<div class="view" id="view-flow">
+  <div class="flow-view">
+    <div class="flow-wrap">
+      <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:3px">Варіант B — повний флоу</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:6px">Cargos сканує → технічна пошта → Zoho routing → менеджер обробляє</div>
+
+      <!-- ROUTING MATRIX -->
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:12px 14px;margin-bottom:18px">
+        <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">Матриця рутингу — хто отримує запит</div>
+        <table style="width:100%;border-collapse:collapse;font-size:11px">
+          <thead><tr>
+            <th style="padding:6px 10px;text-align:left;color:var(--text3);font-weight:600;border-bottom:1px solid var(--border);font-size:10px;text-transform:uppercase">Ситуація</th>
+            <th style="padding:6px 10px;text-align:left;color:var(--text3);font-weight:600;border-bottom:1px solid var(--border);font-size:10px;text-transform:uppercase">Куди йде запит</th>
+            <th style="padding:6px 10px;text-align:left;color:var(--text3);font-weight:600;border-bottom:1px solid var(--border);font-size:10px;text-transform:uppercase">Канал</th>
+          </tr></thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:7px 10px"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-right:6px;vertical-align:middle"></span><strong>Є-ком · клієнт є в довіднику</strong></td>
+              <td style="padding:7px 10px">Відповідальний менеджер</td>
+              <td style="padding:7px 10px"><span style="background:var(--purple-bg);color:var(--purple-text);padding:1px 6px;border-radius:6px;font-size:10px;margin-right:3px">Push</span><span style="background:var(--accent-bg);color:var(--accent-text);padding:1px 6px;border-radius:6px;font-size:10px">Email [Менеджер]</span></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:7px 10px"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--warn);margin-right:6px;vertical-align:middle"></span><strong>Є-ком · менеджер у відпустці</strong></td>
+              <td style="padding:7px 10px">Черговий / підписники</td>
+              <td style="padding:7px 10px"><span style="background:var(--purple-bg);color:var(--purple-text);padding:1px 6px;border-radius:6px;font-size:10px;margin-right:3px">Push черговому</span><span style="background:var(--warn-bg);color:var(--warn-text);padding:1px 6px;border-radius:6px;font-size:10px">«Заміна»</span></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:7px 10px"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--red);margin-right:6px;vertical-align:middle"></span><strong>Є-ком · клієнт невідомий</strong></td>
+              <td style="padding:7px 10px">Черговий або broadcast</td>
+              <td style="padding:7px 10px"><span style="background:var(--red-bg);color:var(--red-text);padding:1px 6px;border-radius:6px;font-size:10px">Broadcast: «потрібна ідентифікація»</span></td>
+            </tr>
+            <tr>
+              <td style="padding:7px 10px"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-right:6px;vertical-align:middle"></span><strong>НЕ є-ком вантаж</strong></td>
+              <td style="padding:7px 10px">Черговий + шаблон передачі</td>
+              <td style="padding:7px 10px"><span style="background:var(--accent-bg);color:var(--accent-text);padding:1px 6px;border-radius:6px;font-size:10px;margin-right:3px">Push черговому</span><span style="background:var(--surface2);color:var(--text2);padding:1px 6px;border-radius:6px;font-size:10px">Шаблон передачі</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- MAIN FLOW -->
+      <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">Покроковий флоу — є-ком вантаж</div>
+
+      <div class="fstep"><div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;padding-top:2px"><div class="fnum fn-npe">1</div><div class="fline"></div></div><div class="fbody npe"><div class="ftitle"><span class="atag at-npe">НПЄ · Cargos</span>Скан + фото</div><div class="fsub">Штрихкод не знайдено → blocker → 2–3 фото + підрядник (InPost / DHL / DPD / Velox) → відправити. ~30 сек.</div></div></div>
+
+      <div class="fstep"><div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;padding-top:2px"><div class="fnum fn-sys">2</div><div class="fline"></div></div><div class="fbody sys"><div class="ftitle"><span class="atag at-sys">Cargos · авто</span>Routing через технічну пошту</div><div class="fsub">Cargos надсилає запит на технічну пошту <strong>ecom-unidentified@npg.ua</strong>. Одночасно три канали:</div><div class="chs"><span class="ch ch-tg" style="background:rgba(74,21,75,.12);color:#C8A0E0;border-color:rgba(74,21,75,.3)"><svg width="11" height="11" fill="#C8A0E0" viewBox="0 0 24 24"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/><path d="M14 9.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"/><path d="M10 14.5c0 .83-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5S2.67 13 3.5 13h5c.83 0 1.5.67 1.5 1.5z"/></svg>Slack · #ecom-unidentified</span><span class="ch ch-em"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Email [Менеджер] на загальну пошту</span><span class="ch ch-zo"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Zoho Deal створено</span><span class="ch ch-em" style="background:var(--bg3);border:1px dashed var(--border2);color:var(--text3)"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><span style="font-style:italic">Опційно: Email на особисту пошту менеджера</span></span></div><div class="subj-box"><div class="subj-l">Email subject</div><div class="subj-v">[Шимко Олег] Нерозпізнаний вантаж #TMP-4960 · НПЄ · DHL · A-2</div><div class="subj-s">Менеджер у subject — лист не загубиться на загальній пошті</div></div></div></div>
+
+      <div class="fstep"><div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;padding-top:2px"><div class="fnum fn-zoho">3</div><div class="fline"></div></div><div class="fbody zoho"><div class="ftitle"><span class="atag at-zoho">Zoho · авто</span>Deal призначено за матрицею рутингу</div><div class="fsub">Zoho перевіряє довідник клієнт–менеджер → призначає Deal. Поля заповнені: підрядник, сектор, TMP ID, тип вантажу, фото як Attachments.</div><div style="margin-top:8px;background:var(--warn-bg);border:1px solid var(--warn);border-radius:var(--r);padding:7px 10px;font-size:11px;color:var(--warn-text);line-height:1.6"><strong>Zoho перевіряє наявність відпустки / лікарняного:</strong><br>Якщо відповідальний менеджер у відпустці або на лікарняному — Deal автоматично призначається на заступника. Дані про відсутність зберігаються в Zoho (calendar / leave module). Заступник вказується менеджером заздалегідь або призначається черговим. Deal отримує позначку <strong>«Заміна»</strong>.</div></div></div>
+
+      <div class="fstep"><div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;padding-top:2px"><div class="fnum fn-mgr">4</div><div class="fline"></div></div><div class="fbody mgr"><div class="ftitle"><span class="atag at-mgr">Менеджер · Zoho</span>Відкриває Deal, вводить клієнта, надсилає email клієнту</div><div class="fsub">Push або email сигналізує. Відкриває Deal — фото, підрядник, контакти клієнта вже є. Вводить клієнта → надсилає email клієнту прямо з Deal. Stage → In Progress.</div></div></div>
+
+      <div class="fstep"><div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;padding-top:2px"><div class="fnum fn-zoho">5</div><div class="fline"></div></div><div class="fbody zoho"><div class="ftitle"><span class="atag at-zoho">Zoho · менеджер</span>Закриває Deal → авто-відповідь</div><div class="fsub">МЕН зареєстровано → закрити Deal. <strong>Автоматично:</strong> статус картки в Cargos змінюється → НПЄ бачить «Ідентифіковано, готово до прийомки». Zoho логує час.</div></div></div>
+
+      <div class="fstep"><div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;padding-top:2px"><div class="fnum fn-npe">6</div></div><div class="fbody npe"><div class="ftitle"><span class="atag at-npe">НПЄ · Cargos</span>Прийомка та випуск</div><div class="fsub">Статус картки змінився на «Ідентифіковано» → працівник НПЄ бачить це в Cargos → прийомка (статус 23) → випуск (статус 26).</div></div></div>
+
+      <!-- NON ECOM BRANCH -->
+      <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-top:20px;margin-bottom:10px">Гілка: НЕ є-ком вантаж</div>
+
+      <div class="fstep"><div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;padding-top:2px"><div class="fnum fn-npe">1</div><div class="fline"></div></div><div class="fbody npe"><div class="ftitle"><span class="atag at-npe">НПЄ · Cargos</span>Скан → вантаж не є-ком</div><div class="fsub">Після фото та деталей працівник НПЄ позначає «Не є-ком» або система визначає за ознаками. Cargos відправляє запит з типом «інший продукт».</div></div></div>
+
+      <div class="fstep"><div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;padding-top:2px"><div class="fnum fn-sys">2</div><div class="fline"></div></div><div class="fbody sys"><div class="ftitle"><span class="atag at-sys">Cargos · авто</span>Routing → черговий + шаблон передачі</div><div class="fsub">Deal створюється з типом «Не є-ком». Призначається на чергового. До Deal прикріплюється <strong>шаблон передачі</strong> — опис кроків що зробити далі.</div></div></div>
+
+      <div class="fstep"><div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;padding-top:2px"><div class="fnum fn-mgr">3</div></div><div class="fbody" style="border-color:#9FE0C8;background:var(--green-bg)"><div class="ftitle"><span class="atag at-mgr">Черговий · Zoho</span>Шаблон передачі — визначити куди перенаправити</div><div class="fsub">Черговий відкриває Deal → бачить шаблон: визначити тип продукту → знайти відповідальний підрозділ → перенаправити Deal або вирішити самостійно. Фіксує результат в Zoho.</div></div></div>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+var EMAILS={Liki24:'logistics@liki24.com',ASOS:'supply@asos.com','H&M':'hm-logistics@hm.com',Trendyol:'ops@trendyol.com',Temu:'carrier-ops@temu.com'};
+
+function setTab(t){
+  var ov=document.getElementById('tab-overview');
+  var tl=document.getElementById('tab-timeline');
+  if(ov)ov.style.borderBottomColor=t==='overview'?'#2060C0':'transparent';
+  if(ov)ov.style.color=t==='overview'?'#2060C0':'#888';
+  if(tl)tl.style.borderBottomColor=t==='timeline'?'#2060C0':'transparent';
+  if(tl)tl.style.color=t==='timeline'?'#2060C0':'#888';
+}
+
+function switchView(v){
+  ['push','zoho','flow'].forEach(function(x){
+    document.getElementById('view-'+x).classList.toggle('on',x===v);
+    document.getElementById('tn-'+x).classList.toggle('on',x===v);
+  });
+}
+
+function setInProgress(){
+  document.getElementById('current-state-lbl').textContent='In Progress';
+  document.getElementById('state-badge').className='state-badge sb-prog';
+  document.getElementById('stage-field').textContent='In Progress';
+  document.getElementById('act-prog').style.display='flex';
+  showToast('Stage → In Progress','Deal взято в роботу · Шимко Олег','blue');
+}
+
+function onClientChange(val){
+  var act=document.getElementById('act-client');
+  var actTxt=document.getElementById('act-client-txt');
+  if(val.trim()&&act){act.style.display='flex';actTxt.textContent='Клієнт вказано: '+val;}
+}
+
+function sendEmailFromZoho(){
+  var client=document.getElementById('z-client').value||'клієнту';
+  var email=EMAILS[client]||'client@example.com';
+  document.getElementById('act-email').style.display='flex';
+  var el=document.getElementById('emails-list');
+  if(el&&!el.querySelector('.sent-row')){
+    var row=document.createElement('div');
+    row.className='z-email-row sent-row';
+    row.innerHTML='<input type="checkbox" style="cursor:pointer"><span class="z-email-subject">RE: Нерозпізнаний вантаж #TMP-4960 — реєстрація МЕН</span><span style="color:#999">щойно</span><span>Internal</span><span style="color:#2060C0">Шимко О.</span><span style="color:#0D9E6A">Sent</span>';
+    el.appendChild(row);
+  }
+  showToast('Email надіслано ✓',client+' · '+email,'green');
+}
+
+function stageDone(){
+  document.getElementById('current-state-lbl').textContent='Closed';
+  document.getElementById('state-badge').style.cssText='background:#E6F7F1;color:#075A3C;border:1px solid #9FE0C8;padding:3px 11px;border-radius:11px;font-size:11px;font-weight:600';
+  document.getElementById('state-badge').textContent='Closed';
+  document.getElementById('stage-field').textContent='Closed';
+  document.getElementById('act-done').style.display='flex';
+  document.getElementById('close-btn').textContent='\u2713 Closed';
+  document.getElementById('close-btn').disabled=true;
+  document.getElementById('close-btn').style.background='#0D9E6A';
+  showToast('Deal закрито \u2713','МЕН зареєстровано · час зафіксовано в Zoho','green');
+  setTimeout(function(){
+    showToast('Cargos OS \u2713','Статус картки #TMP-4960 → «Ідентифіковано» · НПЄ отримав сповіщення','blue');
+  },1500);
+}
+
+function onTypeChange(val){
+  var banner=document.getElementById('non-ecom-banner');
+  if(banner)banner.style.display=val==='other'?'block':'none';
+  if(val==='other'){
+    showToast('Тип: НЕ є-ком','Шаблон передачі активовано · черговий призначений','blue');
+  }
+}
+
+function showToast(title,msg,type){
+  var wrap=document.getElementById('toast-wrap');var el=document.createElement('div');
+  el.className='toast t-'+(type||'blue');
+  var bg={green:'var(--green-bg)',blue:'var(--accent-bg)'}[type]||'var(--accent-bg)';
+  var col={green:'var(--green)',blue:'var(--accent)'}[type]||'var(--accent)';
+  var ic={green:'<path d="M20 6L9 17l-5-5"/>',blue:'<circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>'}[type]||'';
+  el.innerHTML='<div class="t-ico" style="background:'+bg+'"><svg width="12" height="12" fill="none" stroke="'+col+'" stroke-width="2.5" viewBox="0 0 24 24">'+ic+'</svg></div><div class="t-body"><div class="t-ttl">'+title+'</div><div class="t-msg">'+msg+'</div></div><button class="t-x" onclick="this.parentNode.remove()">&#215;</button>';
+  wrap.appendChild(el);
+  setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},4500);
+}
+
+setTimeout(function(){
+  showToast('Deal створено автоматично','#TMP-4960 · Шимко Олег · Slack надіслано','blue');
+},800);
+</script>
+</body>
+</html>
